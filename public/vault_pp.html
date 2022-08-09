@@ -1,0 +1,219 @@
+<html>
+
+<head>
+    <title>Processor Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- using the following paypal library to dynamically load the PP JS script -->
+    <script src="https://unpkg.com/@paypal/paypal-js@5.1.0/dist/iife/paypal-js.min.js"></script>
+
+</head>
+
+<body>
+    <br />
+    <div class="ui container" id="main">
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message hidden" id="infoMessage">
+                <i class="close icon"></i>
+                <div class="header"></div>
+                <p id="infoMessageContent"></p>
+            </div>
+
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+                <div class="ui labeled input">
+                    <div class="ui label">
+                        Amount
+                    </div>
+                    <input type="text" id="amount" name="amount" autocomplete="off" value="10.00" />
+                </div>
+                <div class="ui horizontal divider"></div>
+                <div id="paypal-button-container"></div>
+            </div>
+
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+
+    const customerId = 'todd_vaulting001';
+    const uuid = uuidv4();
+
+    (async function getDataClientId() {
+        const response = await fetch(`/token/data-client-token/${customerId}`);
+        const json = await response.json();
+        console.log('data client id response: ', json);
+        const clientId = 'AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq';
+        window.paypalLoadScript({
+            "client-id": clientId,
+            "data-client-token": json.client_token,
+            "components": "buttons,hosted-fields,funding-eligibility",
+            "vault": "true"
+        }).then((paypal) => {
+
+            // renders SPB and standard card fields
+            paypal.Buttons({
+                // Call your server to set up the transaction
+                createOrder: function (data, actions) {
+                    console.log('Creating the order!');
+                    return fetch("/v2/orders", {
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: `{
+                                    "intent": "CAPTURE",
+                                    "application_context": {
+                                        "brand_name": "Todd's Clothing Shop",
+                                        "locale": "en-US",
+                                        "landing_page": "LOGIN",
+                                        "return_url": "https://www.google.com",
+                                        "cancel_url": "https://www.paypal.com/checkoutnow/error"
+                                    },
+                                    "purchase_units": [
+                                        {
+                                        "reference_id": "ref_${uuid}",
+                                        "custom_id": "cust_${uuid}",
+                                        "invoice_id": "inv_${uuid}",
+                                        "amount": {
+                                            "currency_code": "USD",
+                                            "value": "${document.getElementById('amount').value}"
+                                        }
+                                        }
+                                    ],
+                                    "payment_source": {
+                                        "paypal": {
+                                        "attributes": {
+                                            "customer": {
+                                            "id": "${customerId}"
+                                            },
+                                            "vault": {
+                                                "store_in_vault": "ON_SUCCESS",
+                                                "usage_type": "MERCHANT",
+                                                "customer_type": "CONSUMER"
+                                            }
+                                        }
+                                        }
+                                    }
+                                }`
+                    }).then((res) => {
+                        return res.json()
+                    }).then((json) => {
+                        console.log(`pp order create data: ${JSON.stringify(json, null, 4)}`);
+                        return json.id; // needed later to complete capture
+                    })
+                },
+
+                // Authorize or capture the transaction after payer has approval
+                onApprove: (data, actions) => {
+                    console.log(`onApprove data ${JSON.stringify(data, null, 4)}`);
+                    console.log(`Capturing order #${data.orderID}`);
+                    return fetch(`/v2/orders/${data.orderID}/capture`, {
+                        method: 'post',
+                        body: JSON.stringify({})
+                    }).then((res) => {
+                        return res.json()
+                    }).then((json) => {
+
+                        console.log('capture response data: ', json);
+
+                        // show or hide forms
+                        $("#paymentForm").hide();
+                        $("#finalForm").show();
+
+                        // update the "steps"
+                        $("#stepOne").removeClass("active");
+                        $("#stepTwo").addClass("active");
+
+                        // Show a success message or redirect
+                        let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
+                        presentInfoMessage("Transaction completed!", message);
+                    }).catch((err) => {
+                        console.log('Error on submit: ', err);
+                        presentError("Error Processing", err);
+                    });
+                },
+
+                onCancel(data, actions) {
+                    console.log(`Order Canceled - ID: ${data.orderID}`);
+                },
+
+                onError(err) {
+                    console.error(err);
+                }
+            }).render("#paypal-button-container");
+        });
+
+        return;
+    })();
+
+    /***************************************************/
+    /****************** GENERAL UTILS ******************/
+    /***************************************************/
+    function presentInfoMessage(header, message) {
+        $("#infoMessage .header").html(header);
+        $("#infoMessageContent").html(message);
+        $('#infoMessage').show();
+    }
+
+    function presentError(header = 'General Error', error, debug = false) {
+        $("#errorMessageHeader").html(header);
+        $("#errorMessageContent").html(error.message);
+        if (debug) {
+            $("#errorStack").html(error.stack);
+        }
+        $("#errorMessage").show();
+    }
+
+    // update the menu bar selected item
+    $('.item').click(function (event) {
+        console.log('item: ', event);
+        $('.item').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+    $('.ui.accordion')
+        .accordion()
+        ;
+
+    $('.ui.dropdown')
+        .dropdown(this)
+        // console.log("Dropdown: ", JSON.stringify(this));
+        ;
+
+    $('.message .close')
+        .on('click', function () {
+            $("#errorMessage").hide();
+            $('#infoMessage').hide();
+        });
+
+    function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+</script>
+
+</html>

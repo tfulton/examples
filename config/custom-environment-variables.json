@@ -1,0 +1,19 @@
+{
+    "env": {
+      "sandbox": {
+        "rest": {
+          "credentials": {
+            "clientId": "REST_CLIENT_ID",
+            "secret": "REST_SECRET"
+          }
+        },
+        "nvp": {
+          "credentials": {
+            "user": "NVP_USER",
+            "pwd": "NVP_PASSWORD",
+            "signature": "NVP_SIGNATURE"
+          }
+        }
+      }
+    }
+  }

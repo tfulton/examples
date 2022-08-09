@@ -1,0 +1,16 @@
+{
+  "env": {
+    "sandbox": {
+      "sessionInfo": {
+        "secret": "local secret",
+        "maxAge": 60000
+      },
+      "rest": {
+        "baseURL": "https://api-m.sandbox.paypal.com"
+      },
+      "nvp": {
+        "baseURL": "https://api-3t.sandbox.paypal.com/nvp"
+      }
+    }
+  }
+}

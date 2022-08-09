@@ -1,0 +1,316 @@
+<html>
+
+<head>
+    <title>Processor Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- using the following paypal library to dynamically load the PP JS script -->
+    <script src="https://unpkg.com/@paypal/paypal-js@5.1.0/dist/iife/paypal-js.min.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/stylesheets/paypal_hf.css">
+</head>
+
+<body>
+    <br />
+    <div class="ui container" id="main">
+        <div class="ui top attached tabular menu">
+            <a class="item active" id="id01">
+                PayPal
+            </a>
+            <a class="item" id="id02">
+                Braintree
+            </a>
+            <a class="item" id="id03">
+                Adyen
+            </a>
+            <a class="item" id="id04">
+                Stripe
+            </a>
+            <a class="item" id="id05">
+                Worldpay
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message hidden" id="infoMessage">
+                <i class="close icon"></i>
+                <div class="header"></div>
+                <p id="infoMessageContent"></p>
+            </div>
+
+            <!-- <div class="ui placeholder segment"> -->
+                <!-- <div id="paypal-button-container"></div> -->
+
+                <!-- PAYMENT FORM -->
+                <div class="ui container" id="paymentForm">
+
+                    <div class="card_container">
+                        <form id="card-form">
+                            <label for="amount">Amount</label>
+                            <input type="text" id="amount" name="amount" autocomplete="off" value="10.00" />
+    
+                            <label for="card-number">Card Number</label>
+                            <div id="card-number" class="card_field"></div>
+                            <div>
+                                <label for="expiration-date">Expiration Date</label>
+                                <div id="expiration-date" class="card_field"></div>
+                            </div>
+                            <div>
+                                <label for="cvv">CVV</label>
+                                <div id="cvv" class="card_field"></div>
+                            </div>
+                            <div>
+                                <label for="name">Name on Card</label>
+                                <input type="text" id="name" name="name" autocomplete="off" placeholder="Terry Williams" />
+                            </div>
+                            <div>
+                                <label for="billing-postal-codee">Postal Code</label>
+                                <input type="text" id="billing-postal-code" name="billing-postal-code" autocomplete="off"
+                                    placeholder="zip / postal code" />
+                            </div>
+                            <div>
+                                <label for="billing-country">Country</label>
+                                <input type="text" id="billing-country" name="billing-country" autocomplete="off"
+                                    placeholder="country code" />
+                            </div>
+                            <br /><br />
+                            <div class="navigation">
+                                <ul class="navigation">
+                                    <li><button value="submit" id="submit" class="btn">Pay</button></li>
+                                </ul>
+                            </div>
+    
+                        </form>
+                    </div>
+
+                </div>
+
+                <!-- CAPTURE REVIEW FORM -->
+                <div class="ui form" id="finalForm" hidden>
+                    <button class="ui primary button" id="cancel">
+                        Do it Again
+                    </button>
+                </div>
+
+            <!-- </div> -->
+        </div>
+
+    </div>
+</body>
+<script>
+
+    (async function getDataClientId() {
+        const response = await fetch('/token/data-client-token');
+        const json = await response.json();
+
+        // console.log('identity response: ', json);
+        // console.log('clientToken: ', json.client_token);
+
+        const clientId = 'AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq';
+        window.paypalLoadScript({
+            "client-id": clientId,
+            "data-client-token": json.client_token,
+            "disable-funding": "paylater",
+            "components": "buttons,hosted-fields,funding-eligibility"
+        }).then((paypal) => {
+
+            // renders SPB and standard card fields
+            paypal.Buttons().render("#paypal-button-container");
+
+            // HERE is where we do the setup for AC/DC
+            // If this returns false or the card fields aren't visible, see Step #1.
+            if (paypal.HostedFields.isEligible()) {
+                let orderId;
+
+                // Renders card fields
+                paypal.HostedFields.render({
+                    // Call your server to set up the transaction
+                    createOrder: () => {
+                        console.log('Creating the order!');
+                        return fetch("/v2/orders", {
+                            method: 'post',
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                intent: "CAPTURE",
+                                purchase_units: [
+                                    {
+                                        amount: {
+                                            currency_code: "USD",
+                                            value: document.getElementById('amount').value
+                                        }
+                                    }
+                                ]
+                            })
+                        }).then((res) => res.json()
+                        ).then((json) => {
+                            console.log('pp order create: ', json);
+                            orderId = json.id; // needed later to complete capture
+                            return orderId;
+                        })
+                    },
+                    styles: {
+                        '.valid': {
+                            color: 'green'
+                        },
+                        '.invalid': {
+                            color: 'red'
+                        }
+                    },
+                    fields: {
+                        number: {
+                            selector: "#card-number",
+                            placeholder: "4111 1111 1111 1111"
+                        },
+                        cvv: {
+                            selector: "#cvv",
+                            placeholder: "123"
+                        },
+                        expirationDate: {
+                            selector: "#expiration-date",
+                            placeholder: "MM/YY"
+                        }
+                    }
+                }).then((cardFields) => {
+                    document.querySelector("#card-form").addEventListener("submit", (event) => {
+                        console.log('Button clicked!!!');
+                        // create order happens here??                              
+                        event.preventDefault();
+                        cardFields
+                            .submit({
+                                // Cardholder's first and last name
+                                cardholderName: document.getElementById("name").value,
+                                // Billing Address
+                                billingAddress: {
+                                    // Postal Code
+                                    postalCode: document.getElementById("billing-postal-code").value,
+                                    // Country Code
+                                    countryCodeAlpha2: document.getElementById("billing-country").value,
+                                },
+                            })
+                            .then((cardSubmitResponse) => {
+                                console.log('Capturing the order!');
+                                console.log('cardSubmitResponse', cardSubmitResponse);
+                                fetch(`/v2/orders/${orderId}/capture`, {
+                                    method: "post",
+                                    body: JSON.stringify({})
+                                })
+                                    .then((res) => {
+                                        return res.json()
+                                    })
+                                    .then((json) => {
+                                        // Three cases to handle:
+                                        //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                                        //   (2) Other non-recoverable errors -> Show a failure message
+                                        //   (3) Successful transaction -> Show confirmation or thank you
+                                        // This example reads a v2/checkout/orders capture response, propagated from the server
+                                        // You could use a different API or structure for your 'orderData'
+                                        // console.log('capture order data: ', JSON.stringify(json, null, 4));
+                                        let errorDetail =
+                                            Array.isArray(json.details) && json.details[0];
+                                        if (errorDetail && errorDetail.issue === "INSTRUMENT_DECLINED") {
+                                            return actions.restart(); // Recoverable state, per:
+                                            // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
+                                        }
+                                        if (errorDetail) {
+                                            var msg = "Sorry, your transaction could not be processed.";
+                                            if (errorDetail.description)
+                                                msg += "\n\n" + errorDetail.description;
+                                            if (json.debug_id) msg += " (" + json.debug_id + ")";
+                                            return alert(msg); // Show a failure message
+                                        }
+
+                                        // show or hide forms
+                                        $("#paymentForm").hide();
+                                        $("#finalForm").show();
+
+                                        // update the "steps"
+                                        $("#stepOne").removeClass("active");
+                                        $("#stepTwo").addClass("active");
+
+                                        // Show a success message or redirect
+                                        let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
+                                        presentInfoMessage("Transaction completed!", message);
+                                        // alert("Transaction completed!");
+                                    });
+                            })
+                            .catch((err) => {
+                                console.log('Error on submit: ', err);
+                                presentError("Error Processing", err);
+                                // alert("Payment could not be captured! " + JSON.stringify(err));
+                            });
+                    });
+                });
+            } else {
+                // Hides card fields if the merchant isn't eligible
+                document.querySelector("#card-form").style = 'display: none';
+            }
+
+        });
+
+        return;
+    })();
+
+    /***************************************************/
+    /****************** GENERAL UTILS ******************/
+    /***************************************************/
+    function presentInfoMessage(header, message) {
+        $("#infoMessage .header").html(header);
+        $("#infoMessageContent").html(message);
+        $('#infoMessage').show();
+    }
+
+    function presentError(header = 'General Error', error, debug = false) {
+        $("#errorMessageHeader").html(header);
+        $("#errorMessageContent").html(error.message);
+        if (debug) {
+            $("#errorStack").html(error.stack);
+        }
+        $("#errorMessage").show();
+    }
+
+    // update the menu bar selected item
+    $('.item').click(function (event) {
+        console.log('item: ', event);
+        $('.item').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+    $('.ui.accordion')
+        .accordion()
+        ;
+
+    $('.ui.dropdown')
+        .dropdown(this)
+        // console.log("Dropdown: ", JSON.stringify(this));
+        ;
+
+    $('.message .close')
+        .on('click', function () {
+            $("#errorMessage").hide();
+            $('#infoMessage').hide();
+        });
+
+    const uuidv4 = function () {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+</script>>
+
+</html>

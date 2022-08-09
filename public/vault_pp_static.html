@@ -1,0 +1,233 @@
+<html>
+
+<head>
+    <title>Processor Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- using the following paypal library to dynamically load the PP JS script -->
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq"
+        data-client-token="eyJicmFpbnRyZWUiOnsiYXV0aG9yaXphdGlvbkZpbmdlcnByaW50IjoiYTQzMjYwNzBlMTAxY2E2ZTA0Yzg2MTFjMGMxZTQwZWExOGJkOTYzYTk2ZDkyYmNiMDE1NDk3MTk2ZDMzYzZiNHxtZXJjaGFudF9pZD1yd3dua3FnMnhnNTZobTJuJnB1YmxpY19rZXk9NjNrdm4zN3Z0MjlxYjRkZiZjcmVhdGVkX2F0PTIwMjItMDctMTFUMDM6MTU6MjMuNTIyWiZjdXN0b21lcl9pZD10b2RkMTIzIiwidmVyc2lvbiI6IjMtcGF5cGFsIn0sInBheXBhbCI6eyJpZFRva2VuIjoiZXlKcmFXUWlPaUpsTkRBMk5qQTRZalUwWVRrME5EZ3hZamsxWXpjMU5ESTBPR05qTVRJelppSXNJblI1Y0NJNklrcFhWQ0lzSW1Gc1p5STZJbEpUTWpVMkluMC5leUpwYzNNaU9pSm9kSFJ3Y3pvdkwyRndhUzV6WVc1a1ltOTRMbkJoZVhCaGJDNWpiMjBpTENKaGRGOW9ZWE5vSWpvaWNsbGFOVTloT0ZkNlluQXRSbVpUWmxsS1VrTjVRU0lzSW5KdmJHVWlPaUpOUlZKRFNFRk9WQ0lzSW1WNGRHVnlibUZzWDJsa0lqcGJJbEJoZVZCaGJEcFZNMWM0TmxSUVdVcEZPRVEySWl3aVFuSmhhVzUwY21WbE9tSmlhRzQyWm5oaU5XSjJOV3ByT0hnaVhTd2ljMlZ6YzJsdmJsOXBibVJsZUNJNkltcEpNMVJDTFRGaVlVcEJVRk5RYUVaTWMycHFRbTlXTjNwaVlTSXNJbU5zYVdWdWRGOXBaQ0k2SWtGWmFXUkxkVlJ0VHkxakxUVnJWVVZzVWs1MFRtbHVOVGM1UW5oUE0wYzJaSHBaU3pseVRIVlpNRUZWY0RBeFVWazJOMHRhVkZKWVYyVmtWa1JCU0Zsa2FFVTNTWFpuVUhWWFJIUkNjV1p4SWl3aVlXTnlJanBiSW1Oc2FXVnVkQ0pkTENKaGRXUWlPaUpCV1dsa1MzVlViVTh0WXkwMWExVkZiRkpPZEU1cGJqVTNPVUo0VHpOSE5tUjZXVXM1Y2t4MVdUQkJWWEF3TVZGWk5qZExXbFJTV0ZkbFpGWkVRVWhaWkdoRk4wbDJaMUIxVjBSMFFuRm1jU0lzSW1GMWRHaGZkR2x0WlNJNk1UWTFOelV3T1RNeU15d2liM0IwYVc5dWN5STZleUpqZFhOMGIyMWxjbDlwWkNJNkluUnZaR1F4TWpNaWZTd2lZWG9pT2lKblkzQXVjMnhqSWl3aWMyTnZjR1Z6SWpwYklrSnlZV2x1ZEhKbFpUcFdZWFZzZENKZExDSmxlSEFpT2pFMk5UYzFNVEF5TWpNc0ltbGhkQ0k2TVRZMU56VXdPVE15TXl3aWFuUnBJam9pVlRKQlFVcDVlVk5qWTI5ME5rZG5iRGxLYUZGSVVuSlVSVEIwTjNwMFIwcElhMkpxZERZeFoyVkdiMnBrUjNnNFJIRTRhMTlrU0hwMmR6RTNRaTFLVkZsV2RFeFZhelpKU1RnNFdIRlhRVmRDVG1kQ1dVWldZVVExYTJsUFVFZGtSemN3UW1sMlgzVnhOMncwYjFWNU0yVlZMVmxuVFRobFpFeHdhRTV0TVhjaWZRLlIzMjZEaFU2RDN0R2dDN2x1a3BQUlNycUlUZ2hlcE5HWE1pMkxfMkhkVEZTaHlOLUxxRkNtUkZNWl9DcXVkWUFtUE5JRlZNVHUyeFBSS1ZRM3JTU0RlSVltTk9POVpZamh6OWVBa1Z1ZHFZOXlndEZDRWo0ZVpHeW9GbWZheW5uckhFRUg3cXlLUTN2QXBNNndydGNuM1o2YTl4eEFJLTEwNGxDcUcxaWh5T3dqLVFmcWFjY3lGVENydEE2c2dodWFaOFdORXhZTThxSlJSeDJYdUZQblgwRjZRcGMycEFYbnBQTndqeVA0aFFDamEtWllueWVTeG5KYkV5cmV3VXJoZlY3LVZVTHU1RmNFWDRlVXZNb0pKLTdzdFYwYnBqZEl4ak5yYTNkb19UZVZqNW5FUDlmb1VpaGYxdU1yVXpQWm02UWpXTklBMGZKYTRBd2NBaUYyQSIsImFjY2Vzc1Rva2VuIjoiQTIxQUFLUmc3X2VxcnE3VjJZY2lKYU16WUhzc2pZa2swUmpQT0ZjOUhUN0ZfMTh1WkZMQVV1ejJXbW1wOVFWSXNBZ0YwM2xXSC1VdGxydEZBc1dnblVpRFFFZzJjSzM1dyJ9fQ=="></script>
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/stylesheets/paypal_hf.css">
+    <style>
+        .navigation {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-end;
+            align-items: flex-end;
+            list-style: none;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <br />
+    <div class="ui container" id="main">
+        <div class="ui top attached tabular menu">
+            <a class="item active" id="id01">
+                PayPal
+            </a>
+            <a class="item" id="id02">
+                Braintree
+            </a>
+            <a class="item" id="id03">
+                Adyen
+            </a>
+            <a class="item" id="id04">
+                Stripe
+            </a>
+            <a class="item" id="id05">
+                Worldpay
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message hidden" id="infoMessage">
+                <i class="close icon"></i>
+                <div class="header"></div>
+                <p id="infoMessageContent"></p>
+            </div>
+
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+                <div class="order-content">
+                    <form id="card-form">
+                        <label for="amount">Amount</label>
+                        <input type="text" id="amount" name="amount" autocomplete="off" value="10.00" />
+                    </form>
+                </div>
+                <div id="paypal-button-container"></div>
+            </div>
+
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</body>
+<script>
+
+    const customerId = 'todd123';
+    const uuid = uuidv4();
+
+    // renders SPB and standard card fields
+    paypal.Buttons({
+        // Call your server to set up the transaction
+        createOrder: function (data, actions) {
+            console.log('Creating the order!');
+            return fetch("/v2/orders", {
+                method: 'post',
+                body: `{
+                            "intent": "CAPTURE",
+                            "application_context": {
+                                "brand_name": "Todd's Clothing Shop",
+                                "locale": "en-US",
+                                "landing_page": "LOGIN",
+                                "return_url": "https://www.google.com",
+                                "cancel_url": "https://www.paypal.com/checkoutnow/error"
+                            },
+                            "purchase_units": [
+                                {
+                                    "reference_id": "ref_${uuid}",
+                                    "custom_id": "cust_${uuid}",
+                                    "invoice_id": "inv_${uuid}",
+                                    "amount": {
+                                        "currency_code": "USD",
+                                        "value": "${document.getElementById('amount').value}"
+                                    }
+                                }
+                            ],
+                            "payment_source": {
+                                "paypal": {
+                                "attributes": {
+                                    "customer": {
+                                        "id": "${customerId}"
+                                    },
+                                    "vault": {
+                                        "confirm_payment_token": "ON_ORDER_COMPLETION",
+                                        "store_in_vault": "ON_SUCCESS",
+                                        "usage_type": "MERCHANT",
+                                        "customer_type": "CONSUMER"
+                                    }
+                                }
+                                }
+                            }
+                        }`
+            }).then((res) => {
+                return res.json()
+            }).then((json) => {
+                console.log(`pp order create data: ${JSON.stringify(json, null, 4)}`);
+                return json.id; // needed later to complete capture
+            })
+        },
+
+        // Authorize or capture the transaction after payer has approval
+        onApprove: (data, actions) => {
+            console.log(`onApprove data ${JSON.stringify(data, null, 4)}`);
+            console.log(`Capturing order #${data.orderID}`);
+            return fetch(`/v2/orders/${data.orderID}/capture`, {
+                method: 'post',
+                body: JSON.stringify({})
+            }).then((res) => {
+                return res.json()
+            }).then((json) => {
+
+                // show or hide forms
+                $("#paymentForm").hide();
+                $("#finalForm").show();
+
+                // update the "steps"
+                $("#stepOne").removeClass("active");
+                $("#stepTwo").addClass("active");
+
+                // Show a success message or redirect
+                let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
+                presentInfoMessage("Transaction completed!", message);
+            }).catch((err) => {
+                console.log('Error on submit: ', err);
+                presentError("Error Processing", err);
+            });
+        },
+
+        onCancel(data, actions) {
+            console.log(`Order Canceled - ID: ${data.orderID}`);
+        },
+
+        onError(err) {
+            console.error(err);
+        }
+    }).render("#paypal-button-container");
+
+
+    /***************************************************/
+    /****************** GENERAL UTILS ******************/
+    /***************************************************/
+    function presentInfoMessage(header, message) {
+        $("#infoMessage .header").html(header);
+        $("#infoMessageContent").html(message);
+        $('#infoMessage').show();
+    }
+
+    function presentError(header = 'General Error', error, debug = false) {
+        $("#errorMessageHeader").html(header);
+        $("#errorMessageContent").html(error.message);
+        if (debug) {
+            $("#errorStack").html(error.stack);
+        }
+        $("#errorMessage").show();
+    }
+
+    // update the menu bar selected item
+    $('.item').click(function (event) {
+        console.log('item: ', event);
+        $('.item').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+    $('.ui.accordion')
+        .accordion()
+        ;
+
+    $('.ui.dropdown')
+        .dropdown(this)
+        // console.log("Dropdown: ", JSON.stringify(this));
+        ;
+
+    $('.message .close')
+        .on('click', function () {
+            $("#errorMessage").hide();
+            $('#infoMessage').hide();
+        });
+
+    function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+</script>>
+
+</html>

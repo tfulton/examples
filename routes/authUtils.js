@@ -1,0 +1,74 @@
+const config = require('config');
+const base64 = require('base-64');
+const fetch = require('node-fetch');
+
+/**
+ * We'll do async and return a promise in order to simplify for calling client.
+ */
+const getOauthToken = async (req) => {
+
+    const creds = config.get("env.sandbox.rest.credentials");
+    const baseURL = config.get("env.sandbox.rest.baseURL");
+
+    const userPass = base64.encode(creds.clientId + ":" + creds.secret);
+    const headers = {
+        'Authorization': 'Basic ' + userPass,
+        'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    // do we have a valid oAuth client token?
+    if (!req.session.oAuthToken) { // get and set the clientToken in session
+
+        console.log('No access token found in session.  Retrieving now.');
+
+        // fetch returns promise
+        const response = await fetch(`${baseURL}/v1/oauth2/token`, {
+            method: 'POST',
+            headers: headers,
+            body: 'grant_type=client_credentials'
+        });
+    
+        // json conversion returns promise
+        const oAuthToken = await response.json();
+
+        // store in session and return value
+        req.session.oAuthToken = oAuthToken;
+        return oAuthToken;
+    }
+    else { // validate the TTL, renew if necessary
+
+        console.log(`Access token found in session: ${JSON.stringify(req.session.oAuthToken, null, 4)}`);
+
+        // TODO:  validate TTL
+
+        // return value
+        return req.session.oAuthToken;
+    };
+
+}
+
+const uuidv4 = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+const buildAccessHeader = (req, res, next) => {
+
+    getOauthToken(req).then((token) => {
+        req.ppHeader = {
+            "Authorization": "Bearer " + token.access_token.trim(),
+            "Content-Type": "application/json",
+            "Prefer": "return=representation",
+            "PayPal-Request-Id": uuidv4()
+        };
+        next();
+    });
+}
+
+module.exports = {
+    getOauthToken,
+    // getGrantValue,
+    buildAccessHeader
+};
