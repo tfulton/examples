@@ -145,7 +145,7 @@ router.post('/:orderId/capture', function(req, res, next){
         }).then((response) => {
             return response.json();
         }).then((json) => {
-            console.log("order capture response json: ", json);
+            console.log("order capture response json: ", JSON.stringify(json, null, 4));
             res.setHeader('Content-Type', 'application/json');
             res.status(201).send(json);
         }).catch((error) => {

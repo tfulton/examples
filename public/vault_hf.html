@@ -128,14 +128,14 @@
         });
     }
 
-    const customerId = 'todd_vaulting001';
+    const customerId = 'todd_vault_wed';
     let uuid = uuidv4();
 
     const body = `{
                         "intent": "CAPTURE",
                         "purchase_units": [
                             {
-                            "reference_id": "d9f80740-38f0-11e8-b467-0ed5f89f718b",
+                            "reference_id": "${uuid}",
                             "amount": {
                                 "currency_code": "USD",
                                 "value": "10.00"
@@ -165,27 +165,16 @@
                         }
                     }`;
 
-    // const body2 = `${uuid}`;
-    // const body2 = `{
-    //                         "intent": "CAPTURE",
-    //                         "purchase_units": [
-    //                             {
-    //                                 "reference_id": "ref_${uuid}",
-    //                                 "custom_id": "cust_${uuid}",
-    //                                 "invoice_id": "inv_${uuid}",
-    //                                 "amount": {
-    //                                     "currency_code": "USD",
-    //                                     "value": "10.78"
-    //                                 }
-    //                             }
-    //                         ]
-    //                     }`;
-
 
     (async function getDataClientId() {
+        // setup and retrieve client token from identiry
         const response = await fetch(`/token/data-client-token/${customerId}`);
         const json = await response.json();
+
+        // constants
         const clientId = 'AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq';
+
+        // load the PP JS script ....
         window.paypalLoadScript({
             "client-id": clientId,
             "data-client-token": json.client_token,
@@ -247,7 +236,7 @@
                                 vault: document.querySelector('#vault').checked
                             })
                             .then((cardSubmitResponse) => {
-                                console.log('Hosted Fields Submit Response', cardSubmitResponse);
+                                console.log('Hosted Fields Submit Response HERE', cardSubmitResponse);
                                 console.log('Capturing the order!');
                                 fetch(`/v2/orders/${orderId}/capture`, {
                                     method: "post",
