@@ -128,43 +128,8 @@
         });
     }
 
-    const customerId = 'todd_vault_wed';
+    const customerId = 'inder_friday';
     let uuid = uuidv4();
-
-    const body = `{
-                        "intent": "CAPTURE",
-                        "purchase_units": [
-                            {
-                            "reference_id": "${uuid}",
-                            "amount": {
-                                "currency_code": "USD",
-                                "value": "10.00"
-                            }
-                            }
-                        ],
-                        "payment_source": {
-                            "card": {
-                            "name": "John Doe",
-                            "billing_address": {
-                                "address_line_1": "2211 N First Street",
-                                "address_line_2": "Building 17",
-                                "admin_area_2": "San Jose",
-                                "admin_area_1": "CA",
-                                "postal_code": "95131",
-                                "country_code": "US"
-                            },
-                            "attributes": {
-                                "vault": {
-                                    "store_in_vault": "ON_SUCCESS"
-                                },
-                                "customer": {
-                                    "id": "${customerId}"
-                                }
-                            }
-                            }
-                        }
-                    }`;
-
 
     (async function getDataClientId() {
         // setup and retrieve client token from identiry
@@ -172,13 +137,14 @@
         const json = await response.json();
 
         // constants
-        const clientId = 'AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq';
+        const clientId = 'ASEnYIrrgkM7a1UpQ9XW-jrK5Iy-s-lwYFSlo5xMvU6lEK9s24cWUL5CWRJBKirEHscnX53aoEtVfgQj';
 
         // load the PP JS script ....
         window.paypalLoadScript({
             "client-id": clientId,
             "data-client-token": json.client_token,
-            "components": "hosted-fields,funding-eligibility"
+            "components": "hosted-fields,funding-eligibility",
+            "merchant-id": "Q47ZTPMB4QHH6"
         }).then((paypal) => {
 
             // HERE is where we do the setup for AC/DC
@@ -196,7 +162,39 @@
                             headers: {
                                 "Content-Type": "application/json"
                             },
-                            body: body
+                            body: `{
+                                        "intent": "CAPTURE",
+                                        "purchase_units": [
+                                            {
+                                            "reference_id": "${uuid}",
+                                            "amount": {
+                                                "currency_code": "USD",
+                                                "value": "10.00"
+                                            }
+                                            }
+                                        ],
+                                        "payment_source": {
+                                            "card": {
+                                            "name": "John Doe",
+                                            "billing_address": {
+                                                "address_line_1": "2211 N First Street",
+                                                "address_line_2": "Building 17",
+                                                "admin_area_2": "San Jose",
+                                                "admin_area_1": "CA",
+                                                "postal_code": "95131",
+                                                "country_code": "US"
+                                            },
+                                            "attributes": {
+                                                "vault": {
+                                                    "store_in_vault": "ON_SUCCESS"
+                                                },
+                                                "customer": {
+                                                    "id": "${customerId}"
+                                                }
+                                            }
+                                            }
+                                        }
+                                    }`
                         }).then((res) => res.json()
                         ).then((json) => {
                             console.log('pp order create: ', json);

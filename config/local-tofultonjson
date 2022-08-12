@@ -1,0 +1,23 @@
+{
+    "env": {
+      "sandbox": {
+        "sessionInfo": {
+          "secret": "EBPxPrAXm7j5_DpbY0qOP9IZT1MRtj4UquUfjHuiRAooxJWvXrq2FYAv2ZazBnCFa29SmXJfH-rOD1Bb",
+          "maxAge": 60000
+        },
+        "rest": {
+          "credentials": {
+            "clientId": "AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq",
+            "secret": "EBPxPrAXm7j5_DpbY0qOP9IZT1MRtj4UquUfjHuiRAooxJWvXrq2FYAv2ZazBnCFa29SmXJfH-rOD1Bb"
+          }
+        },
+        "nvp": {
+          "credentials": {
+            "user": "tofulton-facilitator_api1.paypal.com",
+            "pwd": "4K4AGFTDRN4WR239",
+            "signature": "AB16b8bTJi3mf0c8kNYnpuvt9Qq8A0tXlTqmx8oP.hQDYarSbBcdWyms"
+          }
+        }
+      }
+    }
+  }

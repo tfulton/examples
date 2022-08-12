@@ -13,7 +13,8 @@ const getOauthToken = async (req) => {
     const userPass = base64.encode(creds.clientId + ":" + creds.secret);
     const headers = {
         'Authorization': 'Basic ' + userPass,
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'PayPal-Auth-Assertion': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJpc3MiOiJBU0VuWUlycmdrTTdhMVVwUTlYVy1qcks1SXktcy1sd1lGU2xvNXhNdlU2bEVLOXMyNGNXVUw1Q1dSSkJLaXJFSHNjblg1M2FvRXRWZmdRaiIsInBheWVyX2lkIjoiUTQ3WlRQTUI0UUhINiJ9.'
     };
 
     // do we have a valid oAuth client token?
