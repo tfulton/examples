@@ -234,12 +234,13 @@
                                 vault: document.querySelector('#vault').checked
                             })
                             .then((cardSubmitResponse) => {
-                                console.log('Hosted Fields Submit Response HERE', cardSubmitResponse);
+                                console.log('Hosted Fields Submit Response:', cardSubmitResponse);
                                 console.log('Capturing the order!');
                                 fetch(`/v2/orders/${orderId}/capture`, {
                                     method: "post",
                                     body: JSON.stringify({})
                                 }).then((res) => {
+                                    console.log('Capture Response: ', res.json);
                                     return res.json()
                                 }).then((json) => {
                                     // Three cases to handle:
