@@ -6,8 +6,7 @@
     "start": "node ./bin/www"
   },
   "engines": {
-    "npm": ">=8.0.0",
-    "node": ">=18.4.0"
+    "node": "18.x"
   },
   "dependencies": {
     "base-64": "^1.0.0",
