@@ -10,11 +10,14 @@ const getOauthToken = async (req) => {
     const creds = config.get("env.sandbox.rest.credentials");
     const baseURL = config.get("env.sandbox.rest.baseURL");
 
+    // console.log('config: ', JSON.stringify(config, null, 4));
+
     const userPass = base64.encode(creds.clientId + ":" + creds.secret);
     const headers = {
         'Authorization': 'Basic ' + userPass,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'PayPal-Auth-Assertion': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJpc3MiOiJBU0VuWUlycmdrTTdhMVVwUTlYVy1qcks1SXktcy1sd1lGU2xvNXhNdlU2bEVLOXMyNGNXVUw1Q1dSSkJLaXJFSHNjblg1M2FvRXRWZmdRaiIsInBheWVyX2lkIjoiUTQ3WlRQTUI0UUhINiJ9.'
+        'Content-Type': 'application/x-www-form-urlencoded'
+        // TODO:  GENERATE AUTH ASSERTION HEADER ON THE FLY
+        // 'PayPal-Auth-Assertion': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJpc3MiOiJBU0VuWUlycmdrTTdhMVVwUTlYVy1qcks1SXktcy1sd1lGU2xvNXhNdlU2bEVLOXMyNGNXVUw1Q1dSSkJLaXJFSHNjblg1M2FvRXRWZmdRaiIsInBheWVyX2lkIjoiUTQ3WlRQTUI0UUhINiJ9.'
     };
 
     // do we have a valid oAuth client token?
@@ -28,17 +31,31 @@ const getOauthToken = async (req) => {
             headers: headers,
             body: 'grant_type=client_credentials'
         });
-    
-        // json conversion returns promise
-        const oAuthToken = await response.json();
 
-        // store in session and return value
-        req.session.oAuthToken = oAuthToken;
-        return oAuthToken;
+        if (response.ok) {
+            // json conversion returns promise
+            const oAuthToken = await response.json();
+
+            // store in session and return value
+            req.session.oAuthToken = oAuthToken;
+            return oAuthToken;
+        }
+        else {
+            class HTTPResponseError extends Error {
+                constructor(response, ...args) {
+                    super(`HTTP Error Response: ${response.status} ${response.statusText}`, ...args);
+                    this.response = response;
+                }
+            }
+
+            throw new  HTTPResponseError(response);
+        }
+
+
     }
     else { // validate the TTL, renew if necessary
 
-        console.log(`Access token found in session: ${JSON.stringify(req.session.oAuthToken, null, 4)}`);
+        console.log(`Access token found in session, using cached value`);
 
         // TODO:  validate TTL
 
