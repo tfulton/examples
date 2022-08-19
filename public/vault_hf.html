@@ -240,9 +240,9 @@
                                     method: "post",
                                     body: JSON.stringify({})
                                 }).then((res) => {
-                                    console.log('Capture Response: ', res.json);
                                     return res.json()
                                 }).then((json) => {
+                                    console.log('Capture Response: ', json);
                                     // Three cases to handle:
                                     //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
                                     //   (2) Other non-recoverable errors -> Show a failure message
