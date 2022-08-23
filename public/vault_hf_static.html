@@ -1,0 +1,320 @@
+<html>
+
+<head>
+    <title>Processor Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- using the following paypal library to dynamically load the PP JS script -->
+    <!-- <script src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq" data-client-token="eyJicmFpbnRyZWUiOnsiYXV0aG9yaXphdGlvbkZpbmdlcnByaW50IjoiYTZmNjdiYzYwMGIxNTFmNGE4OTNiY2NiNjdhMjY3MWE0OGE1Yzg2ZGUwZTVhOTg0NTk1MTk4Y2IyYWZmMGNiMHxtZXJjaGFudF9pZD1yd3dua3FnMnhnNTZobTJuJnB1YmxpY19rZXk9NjNrdm4zN3Z0MjlxYjRkZiZjcmVhdGVkX2F0PTIwMjItMDgtMjNUMDA6MTg6MTguNzk5WiIsInZlcnNpb24iOiIzLXBheXBhbCJ9LCJwYXlwYWwiOnsiaWRUb2tlbiI6ImV5SnJhV1FpT2lKbE5EQTJOakE0WWpVMFlUazBORGd4WWprMVl6YzFOREkwT0dOak1USXpaaUlzSW5SNWNDSTZJa3BYVkNJc0ltRnNaeUk2SWxKVE1qVTJJbjAuZXlKcGMzTWlPaUpvZEhSd2N6b3ZMMkZ3YVM1ellXNWtZbTk0TG5CaGVYQmhiQzVqYjIwaUxDSmhkRjlvWVhOb0lqb2lNVkUwU0RKVllYRmtURVpCY1VSSE5FSjVhazAyWnlJc0luSnZiR1VpT2lKTlJWSkRTRUZPVkNJc0luTmxjM05wYjI1ZmFXNWtaWGdpT2lKTmREWjZZMGhOZHpJMGFGOUJNMGcxVGpCcFJtVXlWRGcyY0RnaUxDSmpiR2xsYm5SZmFXUWlPaUpCV1dsa1MzVlViVTh0WXkwMWExVkZiRkpPZEU1cGJqVTNPVUo0VHpOSE5tUjZXVXM1Y2t4MVdUQkJWWEF3TVZGWk5qZExXbFJTV0ZkbFpGWkVRVWhaWkdoRk4wbDJaMUIxVjBSMFFuRm1jU0lzSW1GamNpSTZXeUpqYkdsbGJuUWlYU3dpWVhWa0lqb2lRVmxwWkV0MVZHMVBMV010Tld0VlJXeFNUblJPYVc0MU56bENlRTh6Unpaa2VsbExPWEpNZFZrd1FWVndNREZSV1RZM1MxcFVVbGhYWldSV1JFRklXV1JvUlRkSmRtZFFkVmRFZEVKeFpuRWlMQ0poZFhSb1gzUnBiV1VpT2pFMk5qRXlNVE00T1Rnc0ltRjZJam9pWjJOd0xuTnNZeUlzSW5OamIzQmxjeUk2V3lKQ2NtRnBiblJ5WldVNlZtRjFiSFFpWFN3aVpYaHdJam94TmpZeE1qRTBOems0TENKcFlYUWlPakUyTmpFeU1UTTRPVGdzSW1wMGFTSTZJbFV5UVVGS2FWOUhiM2hwWldwT1NYcGxWRUYxYzA5TWMxOVRSRFpsUzB4bk1VdE9OMU5vVEVwdk1sQXRSa050YVdVNVNUUlhRbWRpUVROMVJWUlhaalJTYnpjd1ozTlZSR2R6V0V0b2QybDVSblJ6VkVaRFpFOTBObEZJUldwS1ZVVXdXbU5pTTNvNFVIaG5kbkJJTjBRMkxYTnBZVTA1ZUhoMFdHaHZhM05uSW4wLlFBVnRXbWhqZV83ejZoSHNINFVILVkwZ3pmVWtnODJhOC1ZaEQ1bk5Zdy1CMzJwajdLN2pOTnJIeUhtOHh3dkh6bWdBVmZjTk9fM0o1LXdfd2o4OVdPQ3pqMG9COUZQNUhqLUsydm45eXByTmo2TXlONkM2ekp3SDQyN1pfbnpyRjNtdU5LZ0EwM3pyQmF4NUZmc3o0UnJwVUFtSmx6QlJsNWpVdXp6Q3hCSWJIQWtKNWwtbUViYUN6ZVp6azJoZG9DYkFucVBzQy0zRmFsZGJKUW1NZjQ3aDlMQ1dZNGlfQnBodktxOTFTX1VRTEJNVlFNRGtfMmFSUUZKQ0xJaldoM1hCNHkxc2Jsd0s5eWJEVXpodWQ5SnBYbTZlc05QU2tWU2dOUUV1clEzNEhoVmxDaGtSb1pCU2MtMG80VUpNMmM0S1dZbDZDTnpTRXBHTGR5Ym9FUSIsImFjY2Vzc1Rva2VuIjoiQTIxQUFKTTBUa2ZtQXJKcnZ3Skd2WkJHLWM0ODhaSWswQlY4anlSVWI4dC05QnhOcHlyM21qbHBKdDl6MDVPdVNfd2k1NmZzSFNEY1pmSGlMclRNWTZWY2JQU0ZnY1BCdyJ9fQ=="></script> -->
+    <script src="https://www.te-hosted-fields-adobe.qa.paypal.com/sdk/js?components=buttons,hosted-fields&client-id=ATq4kPMhjTp6qrUQybY0SSz6Es1sO0YDF9f67rt2e-dZx36hHGbV1U9Ek3QRwcHcyyBlHXysRr-uXg18" data-client-token="eyJicmFpbnRyZWUiOnsiYXV0aG9yaXphdGlvbkZpbmdlcnByaW50IjoiOTAwZjJkMDk1Y2E1NWU2NGIzNTYwZjAwOTdmODg4NTk5MTQyODhkZjFlMTRkZWM2N2U1NmM1ZTdmMzE0YWZmN3xtZXJjaGFudF9pZD1yd3dua3FnMnhnNTZobTJuJnB1YmxpY19rZXk9czlic3BuaGtxMmYzaDk0NCZjcmVhdGVkX2F0PTIwMjItMDgtMjNUMDA6MjA6MTcuNjI1WiIsInZlcnNpb24iOiIzLXBheXBhbCJ9LCJwYXlwYWwiOnsiaWRUb2tlbiI6ImV5SnJhV1FpT2lJMlpHSmhOV1ppTnprelpEYzBNVFpoT0daa05tRTBaREppWmpZeVpESTFOaUlzSW5SNWNDSTZJa3BYVkNJc0ltRnNaeUk2SWxKVE1qVTJJbjAuZXlKcGMzTWlPaUpvZEhSd2N6b3ZMMkZ3YVM1dGMyMWhjM1JsY2k1eFlTNXdZWGx3WVd3dVkyOXRJaXdpWVhSZmFHRnphQ0k2SWpWeFlWaDVTbk0zVVRadFowcGxSVW8xVTBkQlJFRWlMQ0p5YjJ4bElqb2lUVVZTUTBoQlRsUWlMQ0p6WlhOemFXOXVYMmx1WkdWNElqb2lVVXR1ZVZOV1UzQjViblp2UkZsamEzVnpjRGt6WmpOM1ZqVnhJaXdpWTJ4cFpXNTBYMmxrSWpvaVFWUnhOR3RRVFdocVZIQTJjWEpWVVhsaVdUQlRVM28yUlhNeGMwOHdXVVJHT1dZMk4zSjBNbVV0WkZwNE16Wm9TRWRpVmpGVk9VVnJNMUZTZDJOSVkzbDVRbXhJV0hselVuSXRkVmhuTVRnaUxDSmhZM0lpT2xzaVkyeHBaVzUwSWwwc0ltRjFaQ0k2SWtGVWNUUnJVRTFvYWxSd05uRnlWVkY1WWxrd1UxTjZOa1Z6TVhOUE1GbEVSamxtTmpkeWRESmxMV1JhZURNMmFFaEhZbFl4VlRsRmF6TlJVbmRqU0dONWVVSnNTRmg1YzFKeUxYVllaekU0SWl3aVlYVjBhRjkwYVcxbElqb3hOall4TWpFME1ERTNMQ0poZWlJNkltMXpiV0Z6ZEdWeU5HbHVkQzFuWDJsa1pXNTBhWFI1YzJWamRYSmxkRzlyWlc1elpYSjJYekV6TG1kd1ppMXdjbTlrSWl3aWMyTnZjR1Z6SWpwYklrSnlZV2x1ZEhKbFpUcFdZWFZzZENKZExDSmxlSEFpT2pFMk5qRXlNVFE1TVRnc0ltbGhkQ0k2TVRZMk1USXhOREF4T0N3aWFuUnBJam9pVlRKQlFXWk1iMU54WDJoaFVWZHhWR1ZYYUVSWVpsSnlWR3g2V0ZaMlJVazRjbkpoZFdSNmEybHhaV2x6ZEhCbk5tNUVWMnhLV2pOWGN6RmFYMVF5WVhoc2RrZDJkM0JHVnpWeWRUUlNaak53U1dkNWFtOUlka2xCUkVVeVdtc3lkRGcyVVZOa1JIcDVVVGxDYWtWaFQxODRZV3B2V1VsbFIxRXdiMDFrV0hjaWZRLlhSek9ubXlsSHp2SXBsb01hMjFaNGQ4cFBkUXh6OExLTXRicERPRkRCa1R2N3lBMW5lNEI4RVdQNDJkal81LVd5YTFVM3lXQWluUkpQbmZSRmlJaTVKQ2FsZnJYOHM0RHROaFV5enlsUXJFVnRuMGxxTlBFeDRoU2tPUWV5LXk2NEZDLWtkNVg4NEdWR3NZd0x4Wk1taUl1ODBNYlZscUo5elJ5TmtxMnZCMXFnSmY5c2FQaDF3SmFITTNwamRFTGpKN1hwLTJEdWNUck1KRzU1b3RiU3hlRlN6NTBkTHZwMDlUTVhIdzE2cWxjN0FaTEw4T2VCaEs1TVQyS3FYMzhXT1pBVFU4cDQ1N1hDZkJhN0tBVS0xSEhSdUVsckdCM3FDZGx1UUNEYURzTU8td29qbU9HWXpaSEJ2bWlwN2Ewc1VTRUsyRjNyNlJFS2RMUGxyMnl6ZyIsImFjY2Vzc1Rva2VuIjoiQTIxX0EuQUFlYkl6UGlnRE5NRVNxNlBjSDFIQzFxR2ZzcXhPSVpVVkdZMmZvbWVkR0lLQVNCTHVwN2FKUlUtX0JOUnBpNzJxZTNiWlVDaVc5UTk3QTFpc3dJcXhzQVRHOTREUSJ9fQ=="></script>
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/stylesheets/paypal_hf.css">
+    <style>
+        .navigation {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-end;
+            align-items: flex-end;
+            list-style: none;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <br />
+    <div class="ui container" id="main">
+        <div class="ui top attached tabular menu">
+            <a class="item active" id="id01">
+                PayPal
+            </a>
+            <a class="item" id="id02">
+                Braintree
+            </a>
+            <a class="item" id="id03">
+                Adyen
+            </a>
+            <a class="item" id="id04">
+                Stripe
+            </a>
+            <a class="item" id="id05">
+                Worldpay
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message hidden" id="infoMessage">
+                <i class="close icon"></i>
+                <div class="header"></div>
+                <p id="infoMessageContent"></p>
+            </div>
+
+            <!-- <div class="ui placeholder segment"> -->
+
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+
+                <div class="card_container">
+                    <form id="card-form">
+                        <label for="amount">Amount</label>
+                        <input type="text" id="amount" name="amount" autocomplete="off" value="10.00" />
+
+                        <label for="card-number">Card Number</label>
+                        <div id="card-number" class="card_field"></div>
+                        <div>
+                            <label for="expiration-date">Expiration Date</label>
+                            <div id="expiration-date" class="card_field"></div>
+                        </div>
+                        <div>
+                            <label for="cvv">CVV</label>
+                            <div id="cvv" class="card_field"></div>
+                        </div>
+                        <div>
+                            <label for="name">Name on Card</label>
+                            <input type="text" id="name" name="name" autocomplete="off" placeholder="Terry Williams" />
+                        </div>
+                        <div>
+                            <label for="billing-postal-codee">Postal Code</label>
+                            <input type="text" id="billing-postal-code" name="billing-postal-code" autocomplete="off"
+                                placeholder="zip / postal code" />
+                        </div>
+                        <div>
+                            <label for="billing-country">Country</label>
+                            <input type="text" id="billing-country" name="billing-country" autocomplete="off"
+                                placeholder="country code" />
+                        </div>
+                        <br /><br />
+                        <div class="navigation">
+                            <ul class="navigation">
+                                <li><button value="submit" id="submit" class="btn">Pay</button></li>
+                                <li><input type="checkbox" id="vault" name="vault"></li>
+                                <li>Save your card</li>
+                            </ul>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+
+            <!-- </div> -->
+        </div>
+
+    </div>
+</body>
+<script>
+
+// const uuidv4 = () => {
+//         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+//             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+//             return v.toString(16);
+//         });
+//     }
+
+    // HERE is where we do the setup for AC/DC
+    // If this returns false or the card fields aren't visible, see Step #1.
+    if (paypal.HostedFields.isEligible()) {
+        let orderId;
+
+
+
+        // Renders card fields
+        paypal.HostedFields.render({
+            // Call your server to set up the transaction
+            createOrder: () => {
+                console.log('Creating the order!');
+                return fetch("/v2/orders", {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: `{
+                            "intent": "CAPTURE",
+                            "purchase_units": [
+                                {
+                                    "reference_id": "TESTING_MONDAY",
+                                    "amount": {
+                                        "currency_code": "USD",
+                                        "value": "10.00"
+                                    }
+                                }
+                            ],
+                            "payment_source": {
+                                "card": {
+                                    "name": "John Doe",
+                                    "billing_address": {
+                                        "address_line_1": "2211 N First Street",
+                                        "address_line_2": "Building 17",
+                                        "admin_area_2": "San Jose",
+                                        "admin_area_1": "CA",
+                                        "postal_code": "95131",
+                                        "country_code": "US"
+                                    },
+                                    "attributes": {
+                                        "vault": {
+                                            "store_in_vault": "ON_SUCCESS"
+                                        }
+                                    }
+                                }
+                            }
+                        }`
+                }).then((res) => res.json()
+                ).then((json) => {
+                    console.log('pp order create: ', json);
+                    orderId = json.id; // needed later to complete capture
+                    return orderId;
+                })
+            },
+            styles: {
+                '.valid': {
+                    color: 'green'
+                },
+                '.invalid': {
+                    color: 'red'
+                }
+            },
+            fields: {
+                number: {
+                    selector: "#card-number",
+                    placeholder: "4111 1111 1111 1111"
+                },
+                cvv: {
+                    selector: "#cvv",
+                    placeholder: "123"
+                },
+                expirationDate: {
+                    selector: "#expiration-date",
+                    placeholder: "MM/YY"
+                }
+            }
+        }).then((cardFields) => {
+            console.log('cardFields: ', cardFields);
+            document.querySelector("#card-form").addEventListener("submit", (event) => {
+                event.preventDefault();
+                console.log('checkbox value: ', document.querySelector('#vault').checked);
+                cardFields
+                    .submit({
+                        vault: document.querySelector('#vault').checked
+                    })
+                    .then((cardSubmitResponse) => {
+                        console.log('Hosted Fields Submit Response:', cardSubmitResponse);
+                        console.log('Capturing the order!');
+                        fetch(`/v2/orders/${orderId}/capture`, {
+                            method: "post",
+                            body: JSON.stringify({})
+                        }).then((res) => {
+                            return res.json()
+                        }).then((json) => {
+                            console.log('Capture Response: ', json);
+                            // Three cases to handle:
+                            //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                            //   (2) Other non-recoverable errors -> Show a failure message
+                            //   (3) Successful transaction -> Show confirmation or thank you
+                            // This example reads a v2/checkout/orders capture response, propagated from the server
+                            // You could use a different API or structure for your 'orderData'
+                            // console.log('capture order data: ', JSON.stringify(json, null, 4));
+                            let errorDetail =
+                                Array.isArray(json.details) && json.details[0];
+                            if (errorDetail && errorDetail.issue === "INSTRUMENT_DECLINED") {
+                                return actions.restart(); // Recoverable state, per:
+                                // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
+                            }
+                            if (errorDetail) {
+                                var msg = "Sorry, your transaction could not be processed.";
+                                if (errorDetail.description)
+                                    msg += "\n\n" + errorDetail.description;
+                                if (json.debug_id) msg += " (" + json.debug_id + ")";
+                                return alert(msg); // Show a failure message
+                            }
+
+                            // show or hide forms
+                            $("#paymentForm").hide();
+                            $("#finalForm").show();
+
+                            // update the "steps"
+                            $("#stepOne").removeClass("active");
+                            $("#stepTwo").addClass("active");
+
+                            // Show a success message or redirect
+                            let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
+                            presentInfoMessage("Transaction completed!", message);
+                        });
+                    })
+                    .catch((err) => {
+                        console.log('Error on submit: ', err);
+                        presentError("Error Processing", err);
+                        // alert("Payment could not be captured! " + JSON.stringify(err));
+                    });
+            });
+        });
+    } else {
+        // Hides card fields if the merchant isn't eligible
+        document.querySelector("#card-form").style = 'display: none';
+    }
+
+
+    /***************************************************/
+    /****************** GENERAL UTILS ******************/
+    /***************************************************/
+    function presentInfoMessage(header, message) {
+        $("#infoMessage .header").html(header);
+        $("#infoMessageContent").html(message);
+        $('#infoMessage').show();
+    }
+
+    function presentError(header = 'General Error', error, debug = false) {
+        $("#errorMessageHeader").html(header);
+        $("#errorMessageContent").html(error.message);
+        if (debug) {
+            $("#errorStack").html(error.stack);
+        }
+        $("#errorMessage").show();
+    }
+
+    // update the menu bar selected item
+    $('.item').click(function (event) {
+        console.log('item: ', event);
+        $('.item').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+    $('.ui.accordion')
+        .accordion()
+        ;
+
+    $('.ui.dropdown')
+        .dropdown(this)
+        // console.log("Dropdown: ", JSON.stringify(this));
+        ;
+
+    $('.message .close')
+        .on('click', function () {
+            $("#errorMessage").hide();
+            $('#infoMessage').hide();
+        });
+</script>>
+
+</html>
