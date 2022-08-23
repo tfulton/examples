@@ -23,10 +23,11 @@ const getOauthToken = async (req) => {
     // do we have a valid oAuth client token?
     if (!req.session.oAuthToken) { // get and set the clientToken in session
 
-        console.log('No access token found in session.  Retrieving now.');
+        const url = `${baseURL}/v1/oauth2/token`
+        console.log(`No access token found in session.  Retrieving now from ${url}.`);
 
         // fetch returns promise
-        const response = await fetch(`${baseURL}/v1/oauth2/token`, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: headers,
             body: 'grant_type=client_credentials'
@@ -41,13 +42,14 @@ const getOauthToken = async (req) => {
             return oAuthToken;
         }
         else {
+            console.log('oAuth token response NOT OK: ', JSON.stringify(response, null, 4));
             class HTTPResponseError extends Error {
                 constructor(response, ...args) {
                     super(`HTTP Error Response: ${response.status} ${response.statusText}`, ...args);
                     this.response = response;
                 }
             }
-
+            
             throw new  HTTPResponseError(response);
         }
 
