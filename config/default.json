@@ -6,7 +6,7 @@
         "maxAge": 60000
       },
       "rest": {
-        "baseURL": "https://te-hosted-fields-adobe.qa.paypal.com:12326"
+        "baseURL": "https://api-m.sandbox.paypal.com"
       },
       "nvp": {
         "baseURL": "https://api-3t.sandbox.paypal.com/nvp"
