@@ -1,0 +1,182 @@
+<html>
+
+<head>
+    <title>Processor Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+
+    <script src="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.js"
+        integrity="sha384-8mwva0PVlFlbNW204liDWLdWflXZVxk84ytAly86gczDok13tfs5q58WGQ7ROWZw"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.css"
+        integrity="sha384-y6jvSkH/EJ+EmVfUABibJST5Df3+PXlPuQveX3NigzwJmiNofEBsUXxbxoaEllaI" crossorigin="anonymous">
+    <!-- CSS -->
+
+    <style>
+        .navigation {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-end;
+            align-items: flex-end;
+            list-style: none;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <br />
+    <div class="ui container" id="main">
+        <div class="ui top attached tabular menu">
+            <a class="item" id="id01">
+                PayPal
+            </a>
+            <a class="item" id="id02">
+                Braintree
+            </a>
+            <a class="item active" id="id03">
+                Adyen
+            </a>
+            <a class="item" id="id04">
+                Stripe
+            </a>
+            <a class="item" id="id05">
+                Worldpay
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message hidden" id="infoMessage">
+                <i class="close icon"></i>
+                <div class="header"></div>
+                <p id="infoMessageContent"></p>
+            </div>
+
+            <!-- <div class="ui placeholder segment"> -->
+
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+
+                <div id="card-container"></div>
+
+            </div>
+
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+
+            <!-- </div> -->
+        </div>
+
+    </div>
+</body>
+<script type="module">
+
+    const uuidv4 = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    const uuid = uuidv4();
+
+    const configuration = {
+        environment: 'test', // Change to 'live' for the live environment.
+        clientKey: 'test_BY4UHJASGZEMDPOYHD5OSP5KSYLEHD5B', // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
+        analytics: {
+            enabled: false // Set to false to not send analytics data to Adyen.
+        },
+        session: {
+            id: 'CS69B3B05F652D9CBD', // Unique identifier for the payment session.
+            sessionData: 'Ab02b4c0!BQABAgCd75iCtHTT22TlfqZfzp8M1/Xv83ynoX514mFWW33mJiY3E0UTZftFZdKnUbEcSicjnDBXd1hbOsHmM15oXn1rhKhT/NWH1e7MXkCTJSI+Tok8UyT0mMeJ9ZbhqZFkSDFpOPDz9HCd02hfxj21Kag1+dzLuhqOQN/JGZFKEbs4zdawNV86vhm1e+wBo4Ddq0Kyk+J12UCFPPI47Atf60VJ+qoxsD+GO/Q2svGHy+tb7IrVcu/xhq/fIzkvnLikcFwcjfg3swhxCsmQBT+nHHp3x8KHrjVMqj4Ts2d9GiKYadiHk+/r60Hmggxfxue8Df4BcxVc/gqgSUSmzdEtpR23WOdmibjHPhnn4gOqviCXxVQn1ZR8UczNneXNeKIbqRbQEf2bwjBGjPZckXRAWY1d1YqMV7XOPj1e2HDVxH46KyS+90VJF77BJLc7nry9qTnFfzWYJttzULcKugw2TaoV84MXEGp8Zph88swTc9L1wS3T8MPB5BvVMu/P9OFFnn9Vy+HfdsPbwVZwxDEzRXLrkZbAXgOEAiNvxKgYuFvGcNQeRNTK/joeJxFo6YyopRZNHgT53Rjcrf4MhV5/d6+NEr9Vv/K69B0K+qYau+HtxccNBxFJA7qnf7TVL4Btm6GOUZh9HYkqj0pmoPnDSXjHsHNDWt1dJuBJ4coTXIN7nRA4Roa1X+X6FTN526S/AHnCAEp7ImtleSI6IkFGMEFBQTEwM0NBNTM3RUFFRDg3QzI0REQ1MzkwOUI4MEE3OEE5MjNFMzgyM0Q2OERBQ0M5NEI5RkY4MzA1REMifUIm4RTw/iySQNTU9D97KNa2lN+aokd5GBmGgglfBkiPgg45/Ocv5QfoIVEdNA2IGBpHdEhFJg9SQSphmnz7WN2k+6ZQhCg3tzL5ZitnrOuHqiwM1SF+kYjiczVa8EE6wfrbpN9lk7cRhOjvboaosellhVjXGlcHQup1PqCI5y8iK6gPJLkL36RqjXrWrfcjh8BY1hZ57HxKwfh6MuujDC38XQTMJX06rmt47dIKNm8rTDyFNvWWMl1Vz5Yy8rNGbItiCiVjt4QmcXoJUEEHZrT6A/pS9QFTL8WnxIbUlzN5f4RxY1R0mGqDQbDYbIjtRSbgZgZePhkK4kMD0UG6pMuW8201uk/QrjFVQUnLD3/O48soYc8nSl2m5pnWO4Sn2qlIMg8fRFp9A9IR' // The payment session data.
+        },
+        onPaymentCompleted: (result, component) => {
+            console.info(result, component);
+        },
+        onError: (error, component) => {
+            console.error(error.name, error.message, error.stack, component);
+        },
+        // Any payment method specific configuration. Find the configuration specific to each payment method:  https://docs.adyen.com/payment-methods
+        // For example, this is 3D Secure configuration for cards:
+        paymentMethodsConfiguration: {
+            card: {
+                hasHolderName: true,
+                holderNameRequired: true,
+                billingAddressRequired: true
+            }
+        }
+    };
+
+    // Create an instance of AdyenCheckout using the configuration object.
+    const checkout = await AdyenCheckout(configuration);
+    // Access the available payment methods for the session.
+    console.log('adyen checkout paymentMethodsResponse: ', checkout.paymentMethodsResponse); // => { paymentMethods: [...], storedPaymentMethods: [...] }
+
+    // Create an instance of the Component and mount it to the container you created.
+    const cardComponent = checkout.create('card').mount('#card-container');
+
+
+
+
+    /***************************************************/
+    /****************** GENERAL UTILS ******************/
+    /***************************************************/
+    function presentInfoMessage(header, message) {
+        $("#infoMessage .header").html(header);
+        $("#infoMessageContent").html(message);
+        $('#infoMessage').show();
+    }
+
+    function presentError(header = 'General Error', error, debug = false) {
+        $("#errorMessageHeader").html(header);
+        $("#errorMessageContent").html(error.message);
+        if (debug) {
+            $("#errorStack").html(error.stack);
+        }
+        $("#errorMessage").show();
+    }
+
+    // update the menu bar selected item
+    $('a.item').click(function (event) {
+        console.log('item: ', event);
+        $('a.item').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+
+    $('.ui.accordion')
+        .accordion()
+        ;
+
+    $('.ui.dropdown')
+        .dropdown(this)
+        // console.log("Dropdown: ", JSON.stringify(this));
+        ;
+
+    $('.message .close')
+        .on('click', function () {
+            $("#errorMessage").hide();
+            $('#infoMessage').hide();
+        });
+</script>>
+
+</html>
