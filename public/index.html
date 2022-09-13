@@ -138,10 +138,6 @@
                     $("#paymentForm").hide();
                     $("#finalForm").show();
 
-                    // update the "steps"
-                    $("#stepOne").removeClass("active");
-                    $("#stepTwo").addClass("active");
-
                     // Show a success message or redirect
                     let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
                     presentInfoMessage("Transaction completed!", message);
