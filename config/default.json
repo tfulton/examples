@@ -6,7 +6,10 @@
         "maxAge": 60000
       },
       "rest": {
-        "baseURL": "https://api-m.sandbox.paypal.com"
+        "baseURL": "https://api-m.sandbox.paypal.com",
+        "adyen": {
+          "baseURL": "https://checkout-test.adyen.com"
+        }
       },
       "nvp": {
         "baseURL": "https://api-3t.sandbox.paypal.com/nvp"

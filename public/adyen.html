@@ -70,6 +70,15 @@
 
                 <div id="card-container"></div>
 
+                <button class="adyen-checkout__button adyen-checkout__button--pay" type="button" id="myButton">
+                    <span class="adyen-checkout__button__content">
+                        <img class="adyen-checkout__button__icon"
+                            src="https://checkoutshopper-test.adyen.com/checkoutshopper/images/components/lock.svg"
+                            alt="" aria-hidden="true">
+                        <span class="adyen-checkout__button__text">Pay </span>
+                    </span>
+                </button>
+
             </div>
 
             <!-- CAPTURE REVIEW FORM -->
@@ -95,41 +104,96 @@
 
     const uuid = uuidv4();
 
-    const configuration = {
-        environment: 'test', // Change to 'live' for the live environment.
-        clientKey: 'test_BY4UHJASGZEMDPOYHD5OSP5KSYLEHD5B', // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
-        analytics: {
-            enabled: false // Set to false to not send analytics data to Adyen.
-        },
-        session: {
-            id: 'CS69B3B05F652D9CBD', // Unique identifier for the payment session.
-            sessionData: 'Ab02b4c0!BQABAgCd75iCtHTT22TlfqZfzp8M1/Xv83ynoX514mFWW33mJiY3E0UTZftFZdKnUbEcSicjnDBXd1hbOsHmM15oXn1rhKhT/NWH1e7MXkCTJSI+Tok8UyT0mMeJ9ZbhqZFkSDFpOPDz9HCd02hfxj21Kag1+dzLuhqOQN/JGZFKEbs4zdawNV86vhm1e+wBo4Ddq0Kyk+J12UCFPPI47Atf60VJ+qoxsD+GO/Q2svGHy+tb7IrVcu/xhq/fIzkvnLikcFwcjfg3swhxCsmQBT+nHHp3x8KHrjVMqj4Ts2d9GiKYadiHk+/r60Hmggxfxue8Df4BcxVc/gqgSUSmzdEtpR23WOdmibjHPhnn4gOqviCXxVQn1ZR8UczNneXNeKIbqRbQEf2bwjBGjPZckXRAWY1d1YqMV7XOPj1e2HDVxH46KyS+90VJF77BJLc7nry9qTnFfzWYJttzULcKugw2TaoV84MXEGp8Zph88swTc9L1wS3T8MPB5BvVMu/P9OFFnn9Vy+HfdsPbwVZwxDEzRXLrkZbAXgOEAiNvxKgYuFvGcNQeRNTK/joeJxFo6YyopRZNHgT53Rjcrf4MhV5/d6+NEr9Vv/K69B0K+qYau+HtxccNBxFJA7qnf7TVL4Btm6GOUZh9HYkqj0pmoPnDSXjHsHNDWt1dJuBJ4coTXIN7nRA4Roa1X+X6FTN526S/AHnCAEp7ImtleSI6IkFGMEFBQTEwM0NBNTM3RUFFRDg3QzI0REQ1MzkwOUI4MEE3OEE5MjNFMzgyM0Q2OERBQ0M5NEI5RkY4MzA1REMifUIm4RTw/iySQNTU9D97KNa2lN+aokd5GBmGgglfBkiPgg45/Ocv5QfoIVEdNA2IGBpHdEhFJg9SQSphmnz7WN2k+6ZQhCg3tzL5ZitnrOuHqiwM1SF+kYjiczVa8EE6wfrbpN9lk7cRhOjvboaosellhVjXGlcHQup1PqCI5y8iK6gPJLkL36RqjXrWrfcjh8BY1hZ57HxKwfh6MuujDC38XQTMJX06rmt47dIKNm8rTDyFNvWWMl1Vz5Yy8rNGbItiCiVjt4QmcXoJUEEHZrT6A/pS9QFTL8WnxIbUlzN5f4RxY1R0mGqDQbDYbIjtRSbgZgZePhkK4kMD0UG6pMuW8201uk/QrjFVQUnLD3/O48soYc8nSl2m5pnWO4Sn2qlIMg8fRFp9A9IR' // The payment session data.
-        },
-        onPaymentCompleted: (result, component) => {
-            console.info(result, component);
-        },
-        onError: (error, component) => {
-            console.error(error.name, error.message, error.stack, component);
-        },
-        // Any payment method specific configuration. Find the configuration specific to each payment method:  https://docs.adyen.com/payment-methods
-        // For example, this is 3D Secure configuration for cards:
-        paymentMethodsConfiguration: {
-            card: {
-                hasHolderName: true,
-                holderNameRequired: true,
-                billingAddressRequired: true
-            }
-        }
-    };
+    (async () => {
 
-    // Create an instance of AdyenCheckout using the configuration object.
-    const checkout = await AdyenCheckout(configuration);
-    // Access the available payment methods for the session.
-    console.log('adyen checkout paymentMethodsResponse: ', checkout.paymentMethodsResponse); // => { paymentMethods: [...], storedPaymentMethods: [...] }
+        // get the session payload
+        const response = await fetch('/adyen/session', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "*/*"
+            },
+            body: `{
+                        "merchantAccount": "BrittoECOM",
+                        "amount": {
+                            "value": 1100,
+                            "currency": "EUR"
+                        },
+                        "returnUrl": "https://www.google.com",
+                        "reference": "ref_${uuid}",
+                        "countryCode": "NL"
+                    }`
+        });
+        const json = await response.json();
+        console.log('JSON from session request: ', json);
 
-    // Create an instance of the Component and mount it to the container you created.
-    const cardComponent = checkout.create('card').mount('#card-container');
+        // ADYEN component configuration object
+        const configuration = {
+            environment: 'test', // Change to 'live' for the live environment.
+            clientKey: 'test_BY4UHJASGZEMDPOYHD5OSP5KSYLEHD5B', // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
+            analytics: {
+                enabled: false // Set to false to not send analytics data to Adyen.
+            },
+            session: {
+                id: json.id, // Unique identifier for the payment session.
+                sessionData: json.sessionData // The payment session data.
+            },
 
+            // Optional. Customize the look and feel of the payment form
+            // https://docs.adyen.com/developers/checkout/api-integration/configure-secured-fields/styling-secured-fields
+            styles: {},
+
+            // Optionally show a Pay Button
+            showPayButton: true,
+
+            onSubmit: (state, component) => {
+                console.log('state: ', state);
+                console.log('component: ', component);
+                fetch('/adyen/payment', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "*/*"
+                    },
+                    body: JSON.stringify(state.data)
+                })
+                .then((response) => {return response.json()})
+                .then((json) => {
+                    console.log("/adyen/payment response: ", json);
+                    return json
+                });
+            },
+            onPaymentCompleted: (result, component) => {
+                console.info(result, component);
+            },
+            onError: (error, component) => {
+                console.error(error.name, error.message, error.stack, component);
+            },
+            // Any payment method specific configuration. Find the configuration specific to each payment method:  https://docs.adyen.com/payment-methods
+            // For example, this is 3D Secure configuration for cards:
+            // paymentMethodsConfiguration: {
+            //     card: {
+            //         hasHolderName: true,
+            //         holderNameRequired: true,
+            //         billingAddressRequired: true
+            //     }
+            // }
+        };
+
+        // Create an instance of AdyenCheckout using the configuration object.
+        const checkout = await AdyenCheckout(configuration);
+        // Access the available payment methods for the session.
+        console.log('adyen checkout paymentMethodsResponse: ', checkout.paymentMethodsResponse); // => { paymentMethods: [...], storedPaymentMethods: [...] }
+
+        // Create an instance of the Component and mount it to the container you created.
+        const cardComponent = checkout.create('card').mount('#card-container');
+
+        $("#myButton").click((event) => {
+            console.log('button clicked', event);
+            cardComponent.submit();
+        })
+
+    })();
 
 
 
@@ -177,6 +241,6 @@
             $("#errorMessage").hide();
             $('#infoMessage').hide();
         });
-</script>>
+</script>
 
 </html>

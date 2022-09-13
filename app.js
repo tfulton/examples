@@ -48,6 +48,9 @@ app.use('/auth', auth);
 const ordersV2 = require('./routes/orders_v2');
 app.use('/v2/orders', ordersV2);
 
+const adyen = require('./routes/adyen');
+app.use('/adyen', adyen);
+
 // const paymentsV1 = require('./routes/payments_v1');
 // app.use('/v1/payments', paymentsV1);
 

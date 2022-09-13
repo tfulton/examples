@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const config = require('config');
-const fetch = require('node-fetch');
 const buildAccessHeader = require('./authUtils').buildAccessHeader;
 
 const baseURL = config.get("env.sandbox.rest.baseURL");

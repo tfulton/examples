@@ -1,6 +1,5 @@
 const config = require('config');
 const base64 = require('base-64');
-const fetch = require('node-fetch');
 
 /**
  * We'll do async and return a promise in order to simplify for calling client.
