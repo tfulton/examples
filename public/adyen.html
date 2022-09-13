@@ -115,12 +115,12 @@
             },
             body: `{
                         "merchantAccount": "BrittoECOM",
+                        "reference": "ref_${uuid}",
                         "amount": {
                             "value": 1100,
                             "currency": "EUR"
                         },
                         "returnUrl": "https://www.google.com",
-                        "reference": "ref_${uuid}",
                         "countryCode": "NL"
                     }`
         });
@@ -155,7 +155,16 @@
                         "Content-Type": "application/json",
                         "Accept": "*/*"
                     },
-                    body: JSON.stringify(state.data)
+                    body: `{
+                        "merchantAccount": "BrittoECOM",
+                        "reference": "ref_${uuid}",
+                        "amount": {
+                            "value": 1100,
+                            "currency": "EUR"
+                        },
+                        "paymentMethod": ${JSON.stringify(state.data.paymentMethod)},
+                        "browserInfo": ${JSON.stringify(state.data.browserInfo)}
+                    }`
                 })
                 .then((response) => {return response.json()})
                 .then((json) => {
@@ -166,7 +175,7 @@
                     $("#finalForm").show();
 
                     // Show a success message or redirect
-                    let message = `A transaction with pspRef ${json.pspReference} in the amount of $${json.amount.value} ${json.amount.currency} was processed sucessfully.`;
+                    let message = `A transaction with pspRef #${json.pspReference} in the amount of $${json.amount.value} ${json.amount.currency} was processed sucessfully.`;
                     presentInfoMessage("Transaction completed!", message);
 
                 });

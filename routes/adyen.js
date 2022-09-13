@@ -52,17 +52,6 @@ router.post('/payment', (req, res) => {
 
     const url = baseURL + '/v68/payments';
 
-    let payload = {
-        merchantAccount: "BrittoECOM",
-        reference: "ref_{{uuid}}",
-        amount: {
-            value: 10,
-            currency: "EUR"
-        },
-        paymentMethod: body.paymentMethod,
-        browserInfo: body.browserInfo
-    };
-
     (async () => {
         const response = await fetch(url, {
             method: "POST",
@@ -70,7 +59,7 @@ router.post('/payment', (req, res) => {
                 "Content-Type": "application/json",
                 "x-API-key": creds.apiKey
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(body)
         });
         const json = await response.json();
 
