@@ -1,19 +1,22 @@
 {
-    "env": {
-      "sandbox": {
-        "rest": {
-          "credentials": {
-            "clientId": "REST_CLIENT_ID",
-            "secret": "REST_SECRET"
+  "env": {
+    "sandbox": {
+      "rest": {
+        "credentials": {
+          "clientId": "REST_CLIENT_ID",
+          "secret": "REST_SECRET",
+          "adyen": {
+            "apiKey": "ADYEN_APIKEY"
           }
-        },
-        "nvp": {
-          "credentials": {
-            "user": "NVP_USER",
-            "pwd": "NVP_PASSWORD",
-            "signature": "NVP_SIGNATURE"
-          }
+        }
+      },
+      "nvp": {
+        "credentials": {
+          "user": "NVP_USER",
+          "pwd": "NVP_PASSWORD",
+          "signature": "NVP_SIGNATURE"
         }
       }
     }
   }
+}

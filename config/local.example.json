@@ -1,23 +1,26 @@
 {
-    "env": {
-      "sandbox": {
-        "sessionInfo": {
-          "secret": "[PUT A UNIQUE AND ROTATING VALUE HERE]",
-          "maxAge": 60000
-        },
-        "rest": {
-          "credentials": {
-            "clientId": "[VALUE HERE]",
-            "secret": "[VALUE HERE]"
+  "env": {
+    "sandbox": {
+      "sessionInfo": {
+        "secret": "[PUT A UNIQUE AND ROTATING VALUE HERE]",
+        "maxAge": 60000
+      },
+      "rest": {
+        "credentials": {
+          "clientId": "[VALUE HERE]",
+          "secret": "[VALUE HERE]",
+          "adyen": {
+            "apiKey": "[VALUE HERE]"
           }
-        },
-        "nvp": {
-          "credentials": {
-            "user": "[VALUE HERE]",
-            "pwd": "[VALUE HERE]",
-            "signature": "[VALUE HERE]"
-          }
+        }
+      },
+      "nvp": {
+        "credentials": {
+          "user": "[VALUE HERE]",
+          "pwd": "[VALUE HERE]",
+          "signature": "[VALUE HERE]"
         }
       }
     }
   }
+}
