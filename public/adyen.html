@@ -81,10 +81,20 @@
 
             </div>
 
-            <!-- CAPTURE REVIEW FORM -->
-            <div class="ui form" id="finalForm" hidden>
+            <!-- CAPTURE FORM -->
+            <div class="ui form" id="captureButtons" hidden>
+                <button class="ui primary button" id="capture">
+                    Capture
+                </button>
                 <button class="ui primary button" id="cancel">
-                    Do it Again
+                    Cancel
+                </button>
+            </div>
+
+            <!-- FINAL REVIEW FORM -->
+            <div class="ui form" id="repeatButtons" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it again
                 </button>
             </div>
 
@@ -106,7 +116,7 @@
 
     (async () => {
 
-        // get the session payload
+        // 1) SETUP THE ADYEN SESSION
         const response = await fetch('/adyen/session', {
             method: "POST",
             headers: {
@@ -121,7 +131,7 @@
                             "currency": "EUR"
                         },
                         "returnUrl": "https://www.google.com",
-                        "countryCode": "NL"
+                        "countryCode": "DE"
                     }`
         });
         const json = await response.json();
@@ -146,9 +156,12 @@
             // Optionally show a Pay Button
             showPayButton: true,
 
+            // Handle the user payment info submit, this outputs a tokenized version of the card info
             onSubmit: (state, component) => {
                 console.log('state: ', state);
                 console.log('component: ', component);
+
+                // 3) CREATE PAYMENT ON SERVER SIDE -- USING THE TOKENIZED PAYMENT INFO
                 fetch('/adyen/payment', {
                     method: "POST",
                     headers: {
@@ -159,7 +172,7 @@
                         "merchantAccount": "BrittoECOM",
                         "reference": "ref_${uuid}",
                         "amount": {
-                            "value": 1100,
+                            "value": 1110,
                             "currency": "EUR"
                         },
                         "paymentMethod": ${JSON.stringify(state.data.paymentMethod)},
@@ -168,15 +181,49 @@
                 })
                 .then((response) => {return response.json()})
                 .then((json) => {
-                    console.log("Server payment response: ", json);
+                    console.log("Payment response: ", json);
 
                     // show or hide forms
                     $("#paymentForm").hide();
-                    $("#finalForm").show();
+                    $("#captureButtons").show();
+                    const pspReference = json.pspReference;
 
                     // Show a success message or redirect
-                    let message = `A transaction with pspRef #${json.pspReference} in the amount of $${json.amount.value} ${json.amount.currency} was processed sucessfully.`;
+                    let message = `An authorisation with pspRef #${pspReference} in the amount of $${json.amount.value} ${json.amount.currency} was authorised.`;
                     presentInfoMessage("Transaction completed!", message);
+
+                    // CAPTURE THE PAYMENT SERVER SIDE
+                    $('#capture').click((event) => {
+                        // capture clicked, let's do it
+                        fetch(`/adyen/payment/${pspReference}/capture`, {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "*/*"
+                            },    
+                            body: `{
+                                        "merchantAccount": "BrittoECOM",
+                                        "amount": {
+                                            "value": 1112,
+                                            "currency": "EUR"
+                                        },
+                                        "reference": "captureRef_${uuid}"
+                                    }`          
+                        })
+                        .then((response) => {return response.json()})
+                        .then((json) => {
+                            console.log("Capture payment response: ", json);
+
+                            $('#captureButtons').hide();
+                            $('#repeatButtons').show();
+                            const capturePspRef = json.pspReference;
+
+                            // Show a success message or redirect
+                            let message = `A capture with capture pspRef #${capturePspRef} in the amount of $${json.amount.value} ${json.amount.currency} is now in a status 
+                            of "${json.status}"".`;
+                            presentInfoMessage("Transaction completed!", message);
+                        })
+                    })
 
                 });
             },
