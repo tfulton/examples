@@ -1,0 +1,84 @@
+const NodeCache = require("node-cache");
+const assert = require("assert");
+const cache = new NodeCache({ stdTTL: 3600 });
+
+const addValue = function (key, value) {
+
+    if (typeof key === 'string' || key instanceof String) {
+        cache.set(key, value);
+    }
+    else {
+        throw new Error("Key must be a string.");
+    }
+
+    return;
+}
+
+const getValue = function (key) {
+
+    const value = cache.get(key);
+    if (value) { return value; }
+    else { return null; }
+}
+
+const getAllValues = function () {
+    const keys = cache.keys();
+    if (keys) {
+        let values = [];
+        for (const key of keys) {
+            values.push(cache.get(key));
+        }
+
+        assert(keys.length, values.length, "Values length does not equal keys length.");
+        return values;
+    }
+    else {
+        return [];
+    }
+}
+
+const getValuesWithKeys = function () {
+    const keys = cache.keys();
+    if (keys) {
+        let values = [];
+        for (const key of keys) {
+            const obj = {
+                receivedAt: key,
+                payload: cache.get(key)
+            }
+            values.unshift(obj);
+        }
+
+        assert(keys.length, values.length, "Values length does not equal keys length.");
+        return values;
+    }
+    else {
+        return [];
+    }
+}
+
+const removeValue = function (key) {
+    if (cache.has(key)) {
+        cache.del(key);
+    }
+
+    return;
+}
+
+const removeAll = function() {
+    cache.flushAll();
+}
+
+const cacheStats = function() {
+    return cache.getStats();
+}
+
+module.exports = {
+    addValue,
+    getValue,
+    getAllValues,
+    getValuesWithKeys,
+    removeValue,
+    removeAll,
+    cacheStats
+}

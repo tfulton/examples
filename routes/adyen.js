@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const config = require('config');
 const fetch = require("node-fetch");
+const auth = require('basic-auth');
+const cache = require("./cache");
+const moment = require("moment");
 
 
 // do some initial prep
@@ -110,6 +113,40 @@ router.post('/payment/:pspReference/capture', (req, res) => {
         res.status(201).send(json);
     })();
 
+});
+
+// webhooks for Adyen
+router.post('/webhooks', (req, res) => {
+
+    const credentials = auth(req);
+    const body = req.body;
+
+    console.log('CREDENTIALS: ', JSON.stringify(credentials));
+    console.log('WEBHOOK BODY: ', JSON.stringify(body, null, 4));
+
+    // create a key
+    const key = moment().toISOString();
+    cache.addValue(key, body);
+
+    res.status(200).send('[accepted]');
+});
+
+router.get('/webhooks', (req, res) => {
+
+    try {
+        // get the cache values
+        if (cache.cacheStats().keys && parseInt(cache.cacheStats().keys) > 0) {
+            const values = cache.getValuesWithKeys();
+            res.status(200).send(values);
+        }
+        else {
+            res.status(200).send({"message": "no values present in cache."});
+        }
+    }
+    catch (err) {
+        console.log("Error in get: ", err);
+        res.status(500).send(err);
+    }
 });
 
 module.exports = router;
