@@ -7,6 +7,9 @@
           "secret": "REST_SECRET",
           "adyen": {
             "apiKey": "ADYEN_APIKEY"
+          },
+          "stripe": {
+            "secretKey": "STRIPE_SECRETKEY"
           }
         }
       },

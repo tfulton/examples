@@ -9,6 +9,9 @@
         "baseURL": "https://api-m.sandbox.paypal.com",
         "adyen": {
           "baseURL": "https://checkout-test.adyen.com"
+        },
+        "stripe": {
+          "baseURL": "https://api.stripe.com"
         }
       },
       "nvp": {

@@ -51,17 +51,8 @@ app.use('/v2/orders', ordersV2);
 const adyen = require('./routes/adyen');
 app.use('/adyen', adyen);
 
-// const paymentsV1 = require('./routes/payments_v1');
-// app.use('/v1/payments', paymentsV1);
-
-// const paymentsV2 = require('./routes/payments_v2');
-// app.use('/v2/payments', paymentsV2);
-
-// const beam = require('./routes/beam');
-// app.use('/beam', beam);
-
-// const nvp = require('./routes/nvp');
-// app.use('/nvp', nvp);
+const stripe = require('./routes/stripe');
+app.use('/stripe', stripe);
 
 const token = require('./routes/token');
 app.use('/token', token);

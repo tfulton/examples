@@ -7,11 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 
 
-    <script
-        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&intent=capture"></script>
+    <script src="https://js.stripe.com/v3/"></script>
 
+    <link rel="stylesheet" href="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.css"
+        integrity="sha384-y6jvSkH/EJ+EmVfUABibJST5Df3+PXlPuQveX3NigzwJmiNofEBsUXxbxoaEllaI" crossorigin="anonymous">
     <!-- CSS -->
-    <link rel="stylesheet" href="/stylesheets/paypal_hf.css">
+
     <style>
         .navigation {
             display: flex;
@@ -28,7 +29,7 @@
     <br />
     <div class="ui container" id="main">
         <div class="ui top attached tabular menu">
-            <a class="item active" id="id01" href="./index.html">
+            <a class="item" id="id01" href="./index.html">
                 PayPal
             </a>
             <a class="item" id="id02">
@@ -37,7 +38,7 @@
             <a class="item" id="id03" href="./adyen.html">
                 Adyen
             </a>
-            <a class="item" id="id04" href="./stripe.html">
+            <a class="item active" id="id04" href="./stripe.html">
                 Stripe
             </a>
             <a class="item" id="id05">
@@ -65,14 +66,27 @@
             <!-- PAYMENT FORM -->
             <div class="ui container" id="paymentForm">
 
-                <div id="paypal-button-container"></div>
-
+                <div id="card-container"></div>
+                <br />
+                <button class="ui primary button" id="pay">
+                    Pay
+                </button>
             </div>
 
-            <!-- CAPTURE REVIEW FORM -->
-            <div class="ui form" id="finalForm" hidden>
+            <!-- CAPTURE FORM -->
+            <div class="ui form" id="captureButtons" hidden>
+                <button class="ui primary button" id="capture">
+                    Capture
+                </button>
                 <button class="ui primary button" id="cancel">
-                    Do it Again
+                    Cancel
+                </button>
+            </div>
+
+            <!-- FINAL REVIEW FORM -->
+            <div class="ui form" id="repeatButtons" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it again
                 </button>
             </div>
 
@@ -81,7 +95,7 @@
 
     </div>
 </body>
-<script>
+<script type="module">
 
     const uuidv4 = () => {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -92,59 +106,59 @@
 
     const uuid = uuidv4();
 
-    paypal
-        .Buttons({
-            // Sets up the transaction when a payment button is clicked
-            createOrder: function (data, actions) {
-                console.log('Creating the order!');
-                return fetch("/v2/orders", {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: `{
-                            "intent": "CAPTURE",
-                            "purchase_units": [
-                                {
-                                    "reference_id": "${uuid}",
-                                    "amount": {
-                                        "currency_code": "USD",
-                                        "value": "10.00"
-                                    }
-                                }
-                            ]
-                        }`
-                }).then((res) => res.json()
-                ).then((json) => {
-                    console.log('Create order response: ', json);
-                    orderId = json.id; // needed later to complete capture
-                    return orderId;
-                })
-            },
-            // Finalize the transaction after payer approval
-            onApprove: function (data, actions) {
-                console.log('onApprove invoked with data: ', data);
-                console.log(`attempting to capture the order with order id ${data.orderID}`);
-                return fetch(`/v2/orders/${data.orderID}/capture`, {
-                    method: "post",
-                    body: `{}`
-                })
-                .then((response) => response.json())
-                .then((json) => {
-                    // Log the capture response
-                    console.log('Capture Response: ', json);
-                    
-                    // show or hide forms
-                    $("#paymentForm").hide();
-                    $("#finalForm").show();
+    (async () => {
 
-                    // Show a success message or redirect
-                    let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
-                    presentInfoMessage("Transaction completed!", message);
-                });
+        // 1) Create instance of the main Stripe object
+        const stripe = Stripe('pk_test_MGN7ISDU7g8lwWrpN9097kp400yIhGpWGV');
+
+        // 2) Create and retrieve a Payment Intent
+        const response = await fetch('/stripe/payment-intent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-        })
-        .render("#paypal-button-container");
+            body: `{
+                "amount": 2000,
+                "currency": "usd",
+                "payment_method_types": [
+                    "card"
+                ]
+            }`
+        });
+
+        const json = await response.json();
+        console.log('Payment Intent Response: ', json);
+
+        const elements = stripe.elements({
+            clientSecret: json.client_secret,
+            appearance: {
+                theme: 'stripe'
+            }
+        });
+
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#card-container');
+
+        document.querySelector('#pay')
+            .addEventListener('click', e => handleSubmit(e));
+
+        async function handleSubmit(e) {
+            console.log('Button clicked');
+            e.preventDefault();
+
+            let paymentResponse = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: "http://localhost:3000/stripe.html"
+                },
+                redirect: "if_required"
+            });
+
+            console.log('paymentResponse: ', paymentResponse);
+        }
+
+    })();
+
 
 
     /***************************************************/
@@ -166,9 +180,9 @@
     }
 
     // update the menu bar selected item
-    $('.item').click(function (event) {
+    $('a.item').click(function (event) {
         console.log('item: ', event);
-        $('.item').removeClass('active');
+        $('a.item').removeClass('active');
         $(this).addClass('active');
     });
 
@@ -176,7 +190,7 @@
         /* function goes in here */
         location.reload()
     });
-    
+
     $('.ui.accordion')
         .accordion()
         ;
@@ -191,6 +205,6 @@
             $("#errorMessage").hide();
             $('#infoMessage').hide();
         });
-</script>>
+</script>
 
 </html>

@@ -11,6 +11,9 @@
           "secret": "[VALUE HERE]",
           "adyen": {
             "apiKey": "[VALUE HERE]"
+          },
+          "stripe": {
+            "secretKey": "[VALUE HERE]"
           }
         }
       },
