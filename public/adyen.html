@@ -176,7 +176,8 @@
                             "currency": "EUR"
                         },
                         "paymentMethod": ${JSON.stringify(state.data.paymentMethod)},
-                        "browserInfo": ${JSON.stringify(state.data.browserInfo)}
+                        "browserInfo": ${JSON.stringify(state.data.browserInfo)},
+                        "returnUrl": "https://www.google.com"
                     }`
                 })
                 .then((response) => {return response.json()})
@@ -233,21 +234,13 @@
             onError: (error, component) => {
                 console.error(error.name, error.message, error.stack, component);
             },
-            // Any payment method specific configuration. Find the configuration specific to each payment method:  https://docs.adyen.com/payment-methods
-            // For example, this is 3D Secure configuration for cards:
-            // paymentMethodsConfiguration: {
-            //     card: {
-            //         hasHolderName: true,
-            //         holderNameRequired: true,
-            //         billingAddressRequired: true
-            //     }
-            // }
         };
 
         // Create an instance of AdyenCheckout using the configuration object.
         const checkout = await AdyenCheckout(configuration);
+        
         // Access the available payment methods for the session.
-        console.log('adyen checkout paymentMethodsResponse: ', checkout.paymentMethodsResponse); // => { paymentMethods: [...], storedPaymentMethods: [...] }
+        console.log('adyen checkout paymentMethodsResponse: ', checkout.paymentMethodsResponse);
 
         // Create an instance of the Component and mount it to the container you created.
         const cardComponent = checkout.create('card').mount('#card-container');
