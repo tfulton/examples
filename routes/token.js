@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const config = require('config');
 const authUtils = require('./authUtils');
+const fetch = require('node-fetch');
 
 // constants
 const baseURL = config.get("env.sandbox.rest.baseURL");
@@ -22,7 +23,7 @@ router.get('/data-client-token/:customerId', (req, resp) => {
     const url = `${baseURL}/v1/identity/generate-token`;
     console.log(`url: ${url}`);
 
-    console.log(`header: ${JSON.stringify(req.ppHeader, null, 4)}`);
+    // console.log(`header: ${JSON.stringify(req.ppHeader, null, 4)}`);
 
     const body = {
         customer_id: req.params.customerId
@@ -36,8 +37,8 @@ router.get('/data-client-token/:customerId', (req, resp) => {
         body: JSON.stringify(body)
     })
         .then((response) => {
-            console.log(`Response status from identity endpoint for client token: ${response.status}`);
-            console.log(`Response status text from identity endpoint for client token: ${response.statusText}`);
+            // console.log(`Response status from identity endpoint for client token: ${response.status}`);
+            // console.log(`Response status text from identity endpoint for client token: ${response.statusText}`);
             return response.json();
         })
         .then(json => {
@@ -57,7 +58,8 @@ router.get('/data-client-token', (req, resp) => {
 
     // retrieve a 'client token' for the UI to use
     const url = `${baseURL}/v1/identity/generate-token`;
-    console.log(`url: ${url}`);
+    console.log(`Identity url: ${url}`);
+    console.log(`PP Headers: ${JSON.stringify(req.ppHeader)}`);
 
     fetch(url, {
         method: 'POST',
@@ -65,8 +67,8 @@ router.get('/data-client-token', (req, resp) => {
         // body: JSON.stringify(body)
     })
         .then((response) => {
-            // console.log(`Response status from identity endpoint for client token: ${response.status}`);
-            // console.log(`Response status text from identity endpoint for client token: ${response.statusText}`);
+            console.log(`Response status from identity endpoint for client token: ${response.status}`);
+            console.log(`Response status text from identity endpoint for client token: ${response.statusText}`);
             return response.json();
         })
         .then(json => {

@@ -185,8 +185,8 @@
                                                     "country_code": "US"
                                                 },
                                                 "attributes": {
-                                                    "vault": {
-                                                        "store_in_vault": "ON_SUCCESS"
+                                                    "verification": {
+                                                        "method": "SCA_ALWAYS"
                                                     }
                                                 }
                                             }
@@ -228,51 +228,61 @@
                         console.log('checkbox value: ', document.querySelector('#vault').checked);
                         cardFields
                             .submit({
-                                vault: document.querySelector('#vault').checked
+                                // // options:  3D_SECURE, SCA_ALWAYS, or SCA_WHEN_REQUIRED
+                                contingencies: ['SCA_ALWAYS']
                             })
                             .then((cardSubmitResponse) => {
+                                
                                 console.log('Hosted Fields Submit Response:', cardSubmitResponse);
                                 console.log('Capturing the order!');
-                                fetch(`/v2/orders/${orderId}/capture`, {
-                                    method: "post",
-                                    body: JSON.stringify({})
-                                }).then((res) => {
-                                    return res.json()
-                                }).then((json) => {
-                                    console.log('Capture Response: ', json);
-                                    // Three cases to handle:
-                                    //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                                    //   (2) Other non-recoverable errors -> Show a failure message
-                                    //   (3) Successful transaction -> Show confirmation or thank you
-                                    // This example reads a v2/checkout/orders capture response, propagated from the server
-                                    // You could use a different API or structure for your 'orderData'
-                                    // console.log('capture order data: ', JSON.stringify(json, null, 4));
-                                    let errorDetail =
-                                        Array.isArray(json.details) && json.details[0];
-                                    if (errorDetail && errorDetail.issue === "INSTRUMENT_DECLINED") {
-                                        return actions.restart(); // Recoverable state, per:
-                                        // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
-                                    }
-                                    if (errorDetail) {
-                                        var msg = "Sorry, your transaction could not be processed.";
-                                        if (errorDetail.description)
-                                            msg += "\n\n" + errorDetail.description;
-                                        if (json.debug_id) msg += " (" + json.debug_id + ")";
-                                        return alert(msg); // Show a failure message
-                                    }
 
-                                    // show or hide forms
-                                    $("#paymentForm").hide();
-                                    $("#finalForm").show();
+                                if (cardSubmitResponse.liabilityShift === "POSSIBLE") {
+                                    // 3D Secure passed successfully
+                                }
 
-                                    // update the "steps"
-                                    $("#stepOne").removeClass("active");
-                                    $("#stepTwo").addClass("active");
+                                if (cardSubmitResponse.liabilityShift) {
+                                    // Handle buyer confirmed 3D Secure successfully
+                                }
+                                //     fetch(`/v2/orders/${orderId}/capture`, {
+                                //         method: "post",
+                                //         body: JSON.stringify({})
+                                //     }).then((res) => {
+                                //         return res.json()
+                                //     }).then((json) => {
+                                //         console.log('Capture Response: ', json);
+                                //         // Three cases to handle:
+                                //         //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                                //         //   (2) Other non-recoverable errors -> Show a failure message
+                                //         //   (3) Successful transaction -> Show confirmation or thank you
+                                //         // This example reads a v2/checkout/orders capture response, propagated from the server
+                                //         // You could use a different API or structure for your 'orderData'
+                                //         // console.log('capture order data: ', JSON.stringify(json, null, 4));
+                                //         let errorDetail =
+                                //             Array.isArray(json.details) && json.details[0];
+                                //         if (errorDetail && errorDetail.issue === "INSTRUMENT_DECLINED") {
+                                //             return actions.restart(); // Recoverable state, per:
+                                //             // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
+                                //         }
+                                //         if (errorDetail) {
+                                //             var msg = "Sorry, your transaction could not be processed.";
+                                //             if (errorDetail.description)
+                                //                 msg += "\n\n" + errorDetail.description;
+                                //             if (json.debug_id) msg += " (" + json.debug_id + ")";
+                                //             return alert(msg); // Show a failure message
+                                //         }
 
-                                    // Show a success message or redirect
-                                    let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
-                                    presentInfoMessage("Transaction completed!", message);
-                                });
+                                //         // show or hide forms
+                                //         $("#paymentForm").hide();
+                                //         $("#finalForm").show();
+
+                                //         // update the "steps"
+                                //         $("#stepOne").removeClass("active");
+                                //         $("#stepTwo").addClass("active");
+
+                                //         // Show a success message or redirect
+                                //         let message = `A transaction with id #${json.id} in the amount of $${json.purchase_units[0].amount.value} ${json.purchase_units[0].amount.currency_code} was processed sucessfully.`;
+                                //         presentInfoMessage("Transaction completed!", message);
+                                //     });
                             })
                             .catch((err) => {
                                 console.log('Error on submit: ', err);

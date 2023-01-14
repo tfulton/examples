@@ -106,55 +106,83 @@
 
     const uuid = uuidv4();
 
+    let amount = 5100;
+    let currency = 'USD';
+    let countryCode = 'US';
+
     (async () => {
 
         // 1) Create instance of the main Stripe object
         const stripe = Stripe('pk_test_MGN7ISDU7g8lwWrpN9097kp400yIhGpWGV');
 
-        // 2) Create and retrieve a Payment Intent
+        // 2) Create and retrieve a Payment Intent from our server side
         const response = await fetch('/stripe/payment-intent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: `{
-                "amount": 2000,
-                "currency": "usd",
+                "amount": ${amount},
+                "currency": "${currency}",
+                "capture_method": "manual",
                 "payment_method_types": [
                     "card"
                 ]
             }`
         });
 
-        const json = await response.json();
-        console.log('Payment Intent Response: ', json);
+        if (response.status <= 201) {
 
-        const elements = stripe.elements({
-            clientSecret: json.client_secret,
-            appearance: {
-                theme: 'stripe'
-            }
-        });
+            const json = await response.json();
+            console.log('Payment Intent Response: ', json);
 
-        const paymentElement = elements.create('payment');
-        paymentElement.mount('#card-container');
-
-        document.querySelector('#pay')
-            .addEventListener('click', e => handleSubmit(e));
-
-        async function handleSubmit(e) {
-            console.log('Button clicked');
-            e.preventDefault();
-
-            let paymentResponse = await stripe.confirmPayment({
-                elements,
-                confirmParams: {
-                    return_url: "http://localhost:3000/stripe.html"
-                },
-                redirect: "if_required"
+            const elements = stripe.elements({
+                clientSecret: json.client_secret,
+                appearance: {
+                    theme: 'stripe'
+                }
             });
 
-            console.log('paymentResponse: ', paymentResponse);
+            const paymentElement = elements.create('payment');
+            paymentElement.mount('#card-container');
+
+            document.querySelector('#pay')
+                .addEventListener('click', e => handleSubmit(e));
+
+            async function handleSubmit(e) {
+                console.log('Button clicked');
+                e.preventDefault();
+
+                let paymentResponse = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: "http://localhost:3000/stripe.html"
+                    },
+                    redirect: "if_required"
+                });
+
+                console.log('paymentResponse: ', paymentResponse);
+
+                if (paymentResponse.status === 'requires_capture') {
+
+                    // show or hide forms
+                    $("#paymentForm").hide();
+                    $("#captureButtons").show();
+
+                    
+                    
+                }
+                else {
+
+                    // pesent error message
+
+                }
+
+            }
+        }
+        else {
+            const error = await response.json();
+            presentError('Error creating Payment Intent', error);
         }
 
     })();

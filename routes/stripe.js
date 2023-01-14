@@ -26,13 +26,20 @@ router.post('/payment-intent', (req, res, next) => {
 
     (async () => {
 
-        // create and return payment intent info
-        const json = await stripe.paymentIntents.create(body);
+        try {
+            // create and return payment intent info
+            const json = await stripe.paymentIntents.create(body);
 
-        // return non-error response
-        console.log("Endpoint response json: ", json);
-        res.setHeader('Content-Type', 'application/json');
-        res.status(201).send(json);
+            // return non-error response
+            console.log("Endpoint response json: ", json);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(201).send(json);
+
+        } catch (error) {
+            console.error('Error creating payment intent: ', JSON.stringify(error, null, 4));
+            console.log('Message: ', error.message);
+            res.status(500).send(error.raw);
+        }
     })();
 
 });

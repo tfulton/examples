@@ -81,7 +81,8 @@ const buildAccessHeader = (req, res, next) => {
             "Authorization": "Bearer " + token.access_token.trim(),
             "Content-Type": "application/json",
             "Prefer": "return=representation",
-            "PayPal-Request-Id": uuidv4()
+            "Accept": "*/*"
+            // "PayPal-Request-Id": uuidv4()
         };
         next();
     });

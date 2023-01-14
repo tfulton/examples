@@ -7,9 +7,9 @@
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 
 
-    <script src="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.js"
+    <!-- <script src="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.js"
         integrity="sha384-8mwva0PVlFlbNW204liDWLdWflXZVxk84ytAly86gczDok13tfs5q58WGQ7ROWZw"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script> -->
 
     <link rel="stylesheet" href="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.css"
         integrity="sha384-y6jvSkH/EJ+EmVfUABibJST5Df3+PXlPuQveX3NigzwJmiNofEBsUXxbxoaEllaI" crossorigin="anonymous">
@@ -105,6 +105,8 @@
 </body>
 <script type="module">
 
+    import AdyenCheckout from 'https://cdn.skypack.dev/@adyen/adyen-web';
+
     const uuidv4 = () => {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -113,6 +115,11 @@
     }
 
     const uuid = uuidv4();
+
+    let initialAmount = 50000;
+    let amount = 1250;
+    let currency = 'EUR';
+    let countryCode = 'FR';
 
     (async () => {
 
@@ -127,13 +134,14 @@
                         "merchantAccount": "BrittoECOM",
                         "reference": "ref_${uuid}",
                         "amount": {
-                            "value": 1100,
-                            "currency": "EUR"
+                            "value": ${initialAmount},
+                            "currency": "${currency}"
                         },
                         "returnUrl": "https://www.google.com",
-                        "countryCode": "DE"
+                        "countryCode": "${countryCode}"
                     }`
         });
+
         const json = await response.json();
         console.log('JSON from session request: ', json);
 
@@ -172,8 +180,8 @@
                         "merchantAccount": "BrittoECOM",
                         "reference": "ref_${uuid}",
                         "amount": {
-                            "value": 1110,
-                            "currency": "EUR"
+                            "value": ${amount},
+                            "currency": "${currency}"
                         },
                         "paymentMethod": ${JSON.stringify(state.data.paymentMethod)},
                         "browserInfo": ${JSON.stringify(state.data.browserInfo)},
@@ -205,8 +213,8 @@
                             body: `{
                                         "merchantAccount": "BrittoECOM",
                                         "amount": {
-                                            "value": 1112,
-                                            "currency": "EUR"
+                                            "value": ${amount},
+                                            "currency": "${currency}"
                                         },
                                         "reference": "captureRef_${uuid}"
                                     }`          
