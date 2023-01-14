@@ -19,7 +19,7 @@ const creds = config.get("env.sandbox.rest.credentials.stripe");
 const stripe = new Stripe(creds.secretKey);
 
 // Create Payment Intent
-router.post('/payment-intent', (req, res, next) => {
+router.post('/intent', (req, res, next) => {
 
     const body = req.body;
     console.log('BODY: ', JSON.stringify(body, null, 4));
@@ -37,6 +37,33 @@ router.post('/payment-intent', (req, res, next) => {
 
         } catch (error) {
             console.error('Error creating payment intent: ', JSON.stringify(error, null, 4));
+            console.log('Message: ', error.message);
+            res.status(500).send(error.raw);
+        }
+    })();
+
+});
+
+router.post('/intent/:paymentIntentId/capture', (req, res, next) => {
+
+    const body = req.body;
+    console.log('BODY: ', JSON.stringify(body, null, 4));
+
+    const id = req.params.paymentIntentId;
+    console.log('PaymentIntent.ID: ', id);
+
+    (async () => {
+
+        try {
+            const json = await stripe.paymentIntents.capture(id);
+
+            // return non-error response
+            console.log("Endpoint response json: ", json);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(201).send(json);
+        }
+        catch (error) {
+            console.error('Error capturing payment intent: ', JSON.stringify(error, null, 4));
             console.log('Message: ', error.message);
             res.status(500).send(error.raw);
         }

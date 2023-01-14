@@ -116,7 +116,7 @@
         const stripe = Stripe('pk_test_MGN7ISDU7g8lwWrpN9097kp400yIhGpWGV');
 
         // 2) Create and retrieve a Payment Intent from our server side
-        const response = await fetch('/stripe/payment-intent', {
+        const response = await fetch('/stripe/intent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -131,58 +131,87 @@
             }`
         });
 
-        if (response.status <= 201) {
+        const json = await response.json();
+        console.log('Create payment intent response: ', json);
 
-            const json = await response.json();
-            console.log('Payment Intent Response: ', json);
-
-            const elements = stripe.elements({
-                clientSecret: json.client_secret,
-                appearance: {
-                    theme: 'stripe'
-                }
-            });
-
-            const paymentElement = elements.create('payment');
-            paymentElement.mount('#card-container');
-
-            document.querySelector('#pay')
-                .addEventListener('click', e => handleSubmit(e));
-
-            async function handleSubmit(e) {
-                console.log('Button clicked');
-                e.preventDefault();
-
-                let paymentResponse = await stripe.confirmPayment({
-                    elements,
-                    confirmParams: {
-                        return_url: "http://localhost:3000/stripe.html"
-                    },
-                    redirect: "if_required"
-                });
-
-                console.log('paymentResponse: ', paymentResponse);
-
-                if (paymentResponse.status === 'requires_capture') {
-
-                    // show or hide forms
-                    $("#paymentForm").hide();
-                    $("#captureButtons").show();
-
-                    
-                    
-                }
-                else {
-
-                    // pesent error message
-
-                }
-
+        // create the stripe elements object and then mount it in our page
+        const elements = stripe.elements({
+            clientSecret: json.client_secret,
+            appearance: {
+                theme: 'stripe'
             }
-        }
-        else {
-            const error = await response.json();
-            presentError('Error creating Payment Intent', error);
+        });
+
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#card-container');
+
+        document.querySelector('#pay')
+            .addEventListener('click', e => handleSubmit(e));
+
+        function handleSubmit(e) {
+            console.log('Button clicked');
+            e.preventDefault();
+
+            stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: "http://localhost:3000/stripe.html"
+                },
+                redirect: "if_required"
+            }).
+                then((response) => {
+                    console.log('stripe.confirmPayment response: ', response);
+                    const intent = response.paymentIntent;
+
+                    // Show a success message or redirect
+                    let message = `An intent with id ${intent.id} in the amount of $${intent.amount} ${intent.currency} was confirmed.`;
+                    presentInfoMessage("Payment intent confirmed!", message);
+
+                    if (intent.status === 'requires_capture') {
+
+                        // show or hide forms
+                        $("#paymentForm").hide();
+                        $("#captureButtons").show();
+
+                        $('#capture').click(event => {
+
+                            // do the capture against our server side
+                            fetch(`/stripe/intent/${intent.id}/capture`, {
+                                method: 'POST',
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Accepts": "*/*"
+                                },
+                                body: `{}`
+                            })
+                            .then(response => { return response.json() })
+                            .then(json => {
+                                console.log("Capture payment response: ", json);
+
+                                $('#captureButtons').hide();
+                                $('#repeatButtons').show();
+
+                                // Show a success message or redirect
+                                let message = `A capture response for intent id ${json.id} was returned with a status of ${json.status}".`;
+                                presentInfoMessage("Payment intent capture completed!", message);
+                            })
+                            .catch(error => {
+                                console.error(`Error encountered withi fetch to /stripe/intent/${intent.id}/capture`, error);
+                            });
+
+                            // display the results
+                        });
+
+                    }
+                    else {
+
+                        // pesent error message
+
+                    }
+                })
+                .catch(error => {
+                    console.error('error in stripe.confirmPayment: ', error);
+                });
         }
 
     })();
