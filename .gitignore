@@ -74,4 +74,4 @@ typings/
 /config/config_support.js
 
 # package json lock
-/package-lock.json
+# /package-lock.json
