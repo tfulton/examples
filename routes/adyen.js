@@ -18,7 +18,7 @@ const baseURL = config.get("env.sandbox.rest.adyen.baseURL");
 const creds = config.get("env.sandbox.rest.credentials.adyen");
 
 // Payment Session endpoint
-router.post("/session", (req, res) => {
+router.post('/session', (req, res) => {
 
     const body = req.body;
     console.log('BODY: ', JSON.stringify(body, null, 4));

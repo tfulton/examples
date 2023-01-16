@@ -51,6 +51,9 @@ app.use('/v2/orders', ordersV2);
 const adyen = require('./routes/adyen');
 app.use('/adyen', adyen);
 
+const braintree = require('./routes/braintree');
+app.use('/braintree', braintree);
+
 const stripe = require('./routes/stripe');
 app.use('/stripe', stripe);
 

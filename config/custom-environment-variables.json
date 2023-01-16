@@ -8,6 +8,12 @@
           "adyen": {
             "apiKey": "ADYEN_APIKEY"
           },
+          "braintree": {
+            "environment": "BRAINTRE_ENVIRONMENT",
+            "merchantId": "BRAINTREE_MERCHANT_ID",
+            "publicKey": "BRAINTRE_PUBLICKEY",
+            "privateKey": "BRAINTREE_PRIVATEKEY"
+          },
           "stripe": {
             "secretKey": "STRIPE_SECRETKEY"
           }

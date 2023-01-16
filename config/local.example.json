@@ -7,21 +7,27 @@
       },
       "rest": {
         "credentials": {
-          "clientId": "[VALUE HERE]",
-          "secret": "[VALUE HERE]",
+          "clientId": "...",
+          "secret": "...",
           "adyen": {
-            "apiKey": "[VALUE HERE]"
+            "apiKey": "...",
+            "clientKey": ""
+          },
+          "braintree": {
+            "merchantId": "...",
+            "publicKey": "...",
+            "privateKey": "..."
           },
           "stripe": {
-            "secretKey": "[VALUE HERE]"
+            "secretKey": "..."
           }
         }
       },
       "nvp": {
         "credentials": {
-          "user": "[VALUE HERE]",
-          "pwd": "[VALUE HERE]",
-          "signature": "[VALUE HERE]"
+          "user": "...",
+          "pwd": "...",
+          "signature": "..."
         }
       }
     }

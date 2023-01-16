@@ -1,0 +1,310 @@
+<html>
+
+<head>
+    <title>Processor Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+
+    <!-- <script src="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.js"
+        integrity="sha384-8mwva0PVlFlbNW204liDWLdWflXZVxk84ytAly86gczDok13tfs5q58WGQ7ROWZw"
+        crossorigin="anonymous"></script> -->
+
+    <link rel="stylesheet" href="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.css"
+        integrity="sha384-y6jvSkH/EJ+EmVfUABibJST5Df3+PXlPuQveX3NigzwJmiNofEBsUXxbxoaEllaI" crossorigin="anonymous">
+    <!-- CSS -->
+
+    <style>
+        .navigation {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-end;
+            align-items: flex-end;
+            list-style: none;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <br />
+    <div class="ui container" id="main">
+        <div class="ui top attached tabular menu">
+            <a class="item" id="id01" href="./index.html">
+                PayPal
+            </a>
+            <a class="item" id="id02">
+                Braintree
+            </a>
+            <a class="item active" id="id03" href="./adyen.html">
+                Adyen
+            </a>
+            <a class="item" id="id04" href="./stripe.html">
+                Stripe
+            </a>
+            <a class="item" id="id05">
+                Worldpay
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message hidden" id="infoMessage">
+                <i class="close icon"></i>
+                <div class="header"></div>
+                <p id="infoMessageContent"></p>
+            </div>
+
+            <!-- <div class="ui placeholder segment"> -->
+
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+
+                <label for="card-number">Card Number</label>
+                <div id="card-number"></div>
+            
+                <label for="cvv">CVV</label>
+                <div id="cvv"></div>
+            
+                <label for="expiration-date">Expiration Date</label>
+                <div id="expiration-date"></div>
+            
+                <input type="submit" value="Pay" disabled />
+
+            </div>
+
+            <!-- CAPTURE FORM -->
+            <div class="ui form" id="captureButtons" hidden>
+                <button class="ui primary button" id="capture">
+                    Capture
+                </button>
+                <button class="ui primary button" id="cancel">
+                    Cancel
+                </button>
+            </div>
+
+            <!-- FINAL REVIEW FORM -->
+            <div class="ui form" id="repeatButtons" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it again
+                </button>
+            </div>
+
+            <!-- </div> -->
+        </div>
+
+    </div>
+</body>
+<script type="module">
+
+    import AdyenCheckout from 'https://cdn.skypack.dev/@adyen/adyen-web';
+
+    const uuidv4 = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    const uuid = uuidv4();
+
+    let initialAmount = 50000;
+    let amount = 1250;
+    let currency = 'EUR';
+    let countryCode = 'FR';
+
+    (async () => {
+
+        // 1) SETUP THE ADYEN SESSION
+        const response = await fetch('/adyen/session', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "*/*"
+            },
+            body: `{
+                        "merchantAccount": "BrittoECOM",
+                        "reference": "ref_${uuid}",
+                        "amount": {
+                            "value": ${initialAmount},
+                            "currency": "${currency}"
+                        },
+                        "returnUrl": "https://www.google.com",
+                        "countryCode": "${countryCode}"
+                    }`
+        });
+
+        const json = await response.json();
+        console.log('JSON from session request: ', json);
+
+        // ADYEN component configuration object
+        const configuration = {
+            environment: 'test', // Change to 'live' for the live environment.
+            clientKey: 'test_BY4UHJASGZEMDPOYHD5OSP5KSYLEHD5B', // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
+            analytics: {
+                enabled: false // Set to false to not send analytics data to Adyen.
+            },
+            session: {
+                id: json.id, // Unique identifier for the payment session.
+                sessionData: json.sessionData // The payment session data.
+            },
+
+            // Optional. Customize the look and feel of the payment form
+            // https://docs.adyen.com/developers/checkout/api-integration/configure-secured-fields/styling-secured-fields
+            styles: {},
+
+            // Optionally show a Pay Button
+            showPayButton: true,
+
+            // Handle the user payment info submit, this outputs a tokenized version of the card info
+            onSubmit: (state, component) => {
+                console.log('state: ', state);
+                console.log('component: ', component);
+
+                // 3) CREATE PAYMENT ON SERVER SIDE -- USING THE TOKENIZED PAYMENT INFO
+                fetch('/adyen/payment', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "*/*"
+                    },
+                    body: `{
+                        "merchantAccount": "BrittoECOM",
+                        "reference": "ref_${uuid}",
+                        "amount": {
+                            "value": ${amount},
+                            "currency": "${currency}"
+                        },
+                        "paymentMethod": ${JSON.stringify(state.data.paymentMethod)},
+                        "browserInfo": ${JSON.stringify(state.data.browserInfo)},
+                        "returnUrl": "https://www.google.com"
+                    }`
+                })
+                .then((response) => {return response.json()})
+                .then((json) => {
+                    console.log("Payment response: ", json);
+
+                    // show or hide forms
+                    $("#paymentForm").hide();
+                    $("#captureButtons").show();
+                    const pspReference = json.pspReference;
+
+                    // Show a success message or redirect
+                    let message = `An authorisation with pspRef #${pspReference} in the amount of $${json.amount.value} ${json.amount.currency} was authorised.`;
+                    presentInfoMessage("Transaction completed!", message);
+
+                    // CAPTURE THE PAYMENT SERVER SIDE
+                    $('#capture').click((event) => {
+                        // capture clicked, let's do it
+                        fetch(`/adyen/payment/${pspReference}/capture`, {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "*/*"
+                            },    
+                            body: `{
+                                        "merchantAccount": "BrittoECOM",
+                                        "amount": {
+                                            "value": ${amount},
+                                            "currency": "${currency}"
+                                        },
+                                        "reference": "captureRef_${uuid}"
+                                    }`          
+                        })
+                        .then((response) => {return response.json()})
+                        .then((json) => {
+                            console.log("Capture payment response: ", json);
+
+                            $('#captureButtons').hide();
+                            $('#repeatButtons').show();
+                            const capturePspRef = json.pspReference;
+
+                            // Show a success message or redirect
+                            let message = `A capture with capture pspRef #${capturePspRef} in the amount of $${json.amount.value} ${json.amount.currency} is now in a status 
+                            of "${json.status}"".`;
+                            presentInfoMessage("Transaction completed!", message);
+                        })
+                    })
+                });
+            },
+            onPaymentCompleted: (result, component) => {
+                console.info(result, component);
+            },
+            onError: (error, component) => {
+                console.error(error.name, error.message, error.stack, component);
+            },
+        };
+
+        // Create an instance of AdyenCheckout using the configuration object.
+        const checkout = await AdyenCheckout(configuration);
+        
+        // Access the available payment methods for the session.
+        console.log('adyen checkout paymentMethodsResponse: ', checkout.paymentMethodsResponse);
+
+        // Create an instance of the Component and mount it to the container you created.
+        const cardComponent = checkout.create('card').mount('#card-container');
+
+        $("#myButton").click((event) => {
+            console.log('button clicked', event);
+            cardComponent.submit();
+        })
+
+    })();
+
+
+
+    /***************************************************/
+    /****************** GENERAL UTILS ******************/
+    /***************************************************/
+    function presentInfoMessage(header, message) {
+        $("#infoMessage .header").html(header);
+        $("#infoMessageContent").html(message);
+        $('#infoMessage').show();
+    }
+
+    function presentError(header = 'General Error', error, debug = false) {
+        $("#errorMessageHeader").html(header);
+        $("#errorMessageContent").html(error.message);
+        if (debug) {
+            $("#errorStack").html(error.stack);
+        }
+        $("#errorMessage").show();
+    }
+
+    // update the menu bar selected item
+    $('a.item').click(function (event) {
+        console.log('item: ', event);
+        $('a.item').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+
+    $('.ui.accordion')
+        .accordion()
+        ;
+
+    $('.ui.dropdown')
+        .dropdown(this)
+        // console.log("Dropdown: ", JSON.stringify(this));
+        ;
+
+    $('.message .close')
+        .on('click', function () {
+            $("#errorMessage").hide();
+            $('#infoMessage').hide();
+        });
+</script>
+
+</html>

@@ -10,6 +10,8 @@
         "adyen": {
           "baseURL": "https://checkout-test.adyen.com"
         },
+        "braintree": {
+        },
         "stripe": {
           "baseURL": "https://api.stripe.com"
         }
