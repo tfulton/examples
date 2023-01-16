@@ -72,3 +72,6 @@ typings/
 /config/local.json
 /config/local.js
 /config/config_support.js
+
+# package json lock
+/package-lock.json
