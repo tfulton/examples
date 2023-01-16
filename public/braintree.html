@@ -6,14 +6,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 
-
-    <!-- <script src="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.js"
-        integrity="sha384-8mwva0PVlFlbNW204liDWLdWflXZVxk84ytAly86gczDok13tfs5q58WGQ7ROWZw"
-        crossorigin="anonymous"></script> -->
-
-    <link rel="stylesheet" href="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/5.23.0/adyen.css"
-        integrity="sha384-y6jvSkH/EJ+EmVfUABibJST5Df3+PXlPuQveX3NigzwJmiNofEBsUXxbxoaEllaI" crossorigin="anonymous">
-    <!-- CSS -->
+    <!-- Load the required client component. -->
+    <script src="https://js.braintreegateway.com/web/3.88.6/js/client.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.88.6/js/hosted-fields.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.88.6/js/data-collector.min.js"></script>
 
     <style>
         .navigation {
@@ -23,6 +19,14 @@
             align-items: flex-end;
             list-style: none;
             gap: 10px;
+        }
+
+        input[type="text"],
+        .hosted-field {
+            border: 1px solid #3A3A3A;
+            -webkit-border-radius: 3px;
+            border-radius: 3px;
+            height: 25px;
         }
     </style>
 </head>
@@ -34,10 +38,10 @@
             <a class="item" id="id01" href="./index.html">
                 PayPal
             </a>
-            <a class="item" id="id02">
+            <a class="item active" id="id02" href="./braintree.html">
                 Braintree
             </a>
-            <a class="item active" id="id03" href="./adyen.html">
+            <a class="item" id="id03" href="./adyen.html">
                 Adyen
             </a>
             <a class="item" id="id04" href="./stripe.html">
@@ -68,16 +72,40 @@
             <!-- PAYMENT FORM -->
             <div class="ui container" id="paymentForm">
 
-                <label for="card-number">Card Number</label>
-                <div id="card-number"></div>
-            
-                <label for="cvv">CVV</label>
-                <div id="cvv"></div>
-            
-                <label for="expiration-date">Expiration Date</label>
-                <div id="expiration-date"></div>
-            
-                <input type="submit" value="Pay" disabled />
+                <form id="checkout" class="ui form">
+                    <div class="seven wide field">
+                        <label>Name</label>
+                        <input data-braintree-name="cardholder_name" class="hosted-field" value="John Smith">
+                    </div>
+                    <div class="fields">
+                        <div class="seven wide field">
+                            <label>CC Number</label>
+                            <div id="number" class="hosted-field"></div>
+                        </div>
+                        <div class="three wide field">
+                            <label>CVV</label>
+                            <div id="cvv" class="hosted-field"></div>
+                        </div>
+                        <div class="six wide field">
+                            <label>Expiration</label>
+                            <div class="two fields">
+                                <div class="field">
+                                    <div id="expiration_month" class="hosted-field"></div>
+                                </div>
+                                <div class="field">
+                                    <div id="expiration-year" class="hosted-field"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="seven wide field">
+                        <label>ZIP Code</label>
+                        <div id="postal_code" class="hosted-field"></div>
+                    </div>
+                    <div class="seven wide field">
+                        <button class="ui primary button" id="submit-button">Pay</button>
+                    </div>
+                </form>
 
             </div>
 
@@ -105,8 +133,6 @@
 </body>
 <script type="module">
 
-    import AdyenCheckout from 'https://cdn.skypack.dev/@adyen/adyen-web';
-
     const uuidv4 = () => {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -116,146 +142,158 @@
 
     const uuid = uuidv4();
 
-    let initialAmount = 50000;
-    let amount = 1250;
-    let currency = 'EUR';
-    let countryCode = 'FR';
+    let amount = 12.50;
+    let currency = 'USD';
+    let countryCode = 'US';
 
     (async () => {
 
         // 1) SETUP THE ADYEN SESSION
-        const response = await fetch('/adyen/session', {
-            method: "POST",
+        const response = await fetch('/braintree/token', {
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "*/*"
-            },
-            body: `{
-                        "merchantAccount": "BrittoECOM",
-                        "reference": "ref_${uuid}",
-                        "amount": {
-                            "value": ${initialAmount},
-                            "currency": "${currency}"
-                        },
-                        "returnUrl": "https://www.google.com",
-                        "countryCode": "${countryCode}"
-                    }`
+            }
         });
 
         const json = await response.json();
-        console.log('JSON from session request: ', json);
+        console.log('JSON from token request: ', json);
 
-        // ADYEN component configuration object
-        const configuration = {
-            environment: 'test', // Change to 'live' for the live environment.
-            clientKey: 'test_BY4UHJASGZEMDPOYHD5OSP5KSYLEHD5B', // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
-            analytics: {
-                enabled: false // Set to false to not send analytics data to Adyen.
-            },
-            session: {
-                id: json.id, // Unique identifier for the payment session.
-                sessionData: json.sessionData // The payment session data.
-            },
+        let deviceData;
 
-            // Optional. Customize the look and feel of the payment form
-            // https://docs.adyen.com/developers/checkout/api-integration/configure-secured-fields/styling-secured-fields
-            styles: {},
+        braintree.client.create({
+            authorization: json.clientToken
+        })
+        .then(clientInstance => { // let's collect the device data
 
-            // Optionally show a Pay Button
-            showPayButton: true,
+                braintree.dataCollector.create({
+                    client: clientInstance
+                }).then(function (dataCollectorInstance) {
+                    // At this point, you should access the dataCollectorInstance.deviceData value and provide it
+                    // to your server, e.g. by injecting it into your form as a hidden input.
+                    console.log('deviceData: ', dataCollectorInstance.deviceData);
+                    deviceData = dataCollectorInstance.deviceData;
+                });
 
-            // Handle the user payment info submit, this outputs a tokenized version of the card info
-            onSubmit: (state, component) => {
-                console.log('state: ', state);
-                console.log('component: ', component);
-
-                // 3) CREATE PAYMENT ON SERVER SIDE -- USING THE TOKENIZED PAYMENT INFO
-                fetch('/adyen/payment', {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "*/*"
+                return clientInstance;
+            })
+        .then(clientInstance => {
+            return braintree.hostedFields.create({
+                client: clientInstance,
+                styles: {
+                    input: {
+                        "font-size": "14px"
                     },
-                    body: `{
-                        "merchantAccount": "BrittoECOM",
-                        "reference": "ref_${uuid}",
-                        "amount": {
-                            "value": ${amount},
-                            "currency": "${currency}"
+                    "input.invalid": {
+                        color: "red"
+                    },
+                    "input.valid": {
+                        color: "green"
+                    }
+                },
+                fields: {
+                    number: {
+                        selector: "#number",
+                        placeholder: "4111 1111 1111 1111"
+                    },
+                    cvv: {
+                        selector: "#cvv",
+                        placeholder: "100"
+                    },
+                    expirationMonth: {
+                        selector: "#expiration_month",
+                        placeholder: "10"
+                    },
+                    expirationYear: {
+                        selector: "#expiration-year",
+                        placeholder: "2030"
+                    },
+                    postalCode: {
+                        selector: "#postal_code",
+                        placeholder: "95131"
+                    }
+                }
+            });
+        })
+        .then(hostedFields => {
+
+            $('#submit-button').click(event => {
+                console.log("Let's submit this thing!");
+                event.preventDefault();
+
+                hostedFields.tokenize((err, payload) => {
+                    if (err) {
+                        console.error('Got an error on tokenize: ', err);
+                    }
+
+                    console.log('Got the nonce: ', payload);
+                    console.log('Let us to straight authorize using now.');
+                    console.log('uuid: ', uuid);
+                    fetch('/braintree/authorize', {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "*/*"
                         },
-                        "paymentMethod": ${JSON.stringify(state.data.paymentMethod)},
-                        "browserInfo": ${JSON.stringify(state.data.browserInfo)},
-                        "returnUrl": "https://www.google.com"
-                    }`
-                })
-                .then((response) => {return response.json()})
-                .then((json) => {
-                    console.log("Payment response: ", json);
+                        body: `{
+                            "amount": ${amount},
+                            "paymentMethodNonce": "${payload.nonce}",
+                            "deviceData": "${deviceData.correlation_id}",
+                            "orderId": "${uuid}",
+                            "options": {
+                                    "submitForSettlement": false
+                                }
+                            }`
+                    })
+                    .then(response => {return response.json()})
+                    .then(json => {
 
-                    // show or hide forms
-                    $("#paymentForm").hide();
-                    $("#captureButtons").show();
-                    const pspReference = json.pspReference;
+                        console.log('Transaction.sale response: ', json);
 
-                    // Show a success message or redirect
-                    let message = `An authorisation with pspRef #${pspReference} in the amount of $${json.amount.value} ${json.amount.currency} was authorised.`;
-                    presentInfoMessage("Transaction completed!", message);
+                        // Show a success message or redirect
+                        let message = `An authorization with id #${json.transaction.id} in the amount of $${json.transaction.amount} ${json.transaction.currencyIsoCode} was processed.`;
+                        presentInfoMessage("Transaction completed!", message);
 
-                    // CAPTURE THE PAYMENT SERVER SIDE
-                    $('#capture').click((event) => {
-                        // capture clicked, let's do it
-                        fetch(`/adyen/payment/${pspReference}/capture`, {
-                            method: 'POST',
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Accept": "*/*"
-                            },    
-                            body: `{
-                                        "merchantAccount": "BrittoECOM",
-                                        "amount": {
-                                            "value": ${amount},
-                                            "currency": "${currency}"
-                                        },
-                                        "reference": "captureRef_${uuid}"
-                                    }`          
-                        })
-                        .then((response) => {return response.json()})
-                        .then((json) => {
-                            console.log("Capture payment response: ", json);
+                        // show or hide forms
+                        $("#paymentForm").hide();
+                        $("#captureButtons").show();
 
-                            $('#captureButtons').hide();
-                            $('#repeatButtons').show();
-                            const capturePspRef = json.pspReference;
+                        $('#capture').click(event => {
+                            
+                            // let's try and capture the authorized transaction
+                            console.log(`Attempting to capture transaction with id ${json.transaction.id}`);
+                            fetch(`/braintree/${json.transaction.id}/capture`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Accept": "*/*"
+                                },
+                                body: `{
+                                    "amount": "${amount}"
+                                }`
+                            })
+                            .then(response => {return response.json()})
+                            .then(json => {
 
-                            // Show a success message or redirect
-                            let message = `A capture with capture pspRef #${capturePspRef} in the amount of $${json.amount.value} ${json.amount.currency} is now in a status 
-                            of "${json.status}"".`;
-                            presentInfoMessage("Transaction completed!", message);
+                                console.log("Capture payment response: ", json);
+
+                                $('#captureButtons').hide();
+                                $('#repeatButtons').show();
+                                // const capturePspRef = json.pspReference;
+
+                                // // Show a success message or redirect
+                                let message = `A capture with id #${json.transaction.id} is now in a status of "${json.transaction.status}"".`;
+                                presentInfoMessage("Transaction completed!", message);
+                            })
                         })
                     })
+                    .catch(error => {
+                        console.error('Error in authorize request: ', error);
+                    });
                 });
-            },
-            onPaymentCompleted: (result, component) => {
-                console.info(result, component);
-            },
-            onError: (error, component) => {
-                console.error(error.name, error.message, error.stack, component);
-            },
-        };
-
-        // Create an instance of AdyenCheckout using the configuration object.
-        const checkout = await AdyenCheckout(configuration);
-        
-        // Access the available payment methods for the session.
-        console.log('adyen checkout paymentMethodsResponse: ', checkout.paymentMethodsResponse);
-
-        // Create an instance of the Component and mount it to the container you created.
-        const cardComponent = checkout.create('card').mount('#card-container');
-
-        $("#myButton").click((event) => {
-            console.log('button clicked', event);
-            cardComponent.submit();
-        })
+            });
+        });
 
     })();
 

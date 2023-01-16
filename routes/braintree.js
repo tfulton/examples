@@ -32,4 +32,65 @@ router.get("/token", (req, res, next) => {
       });
 });
 
+router.post("/authorize", (req, res, next) => {
+
+    const body = req.body;
+    console.log('BODY: ', JSON.stringify(body, null, 4));
+
+    (async () => {
+
+        gateway.transaction.sale(
+            body
+        )
+        .then(result => {
+            console.log('Result: ', result);
+            if(result.success) {
+                res.status(201).send(result);
+            }
+            else {
+                res.status(400).send(result);
+            }
+        })
+        .catch(error => {
+            console.log('Error in gateway response: ', error);
+            res.status(500).send(error);
+        });
+    })();
+
+});
+
+
+router.post("/:transactionId/capture", (req, res, next) => {
+
+    const body = req.body;
+    console.log('BODY: ', JSON.stringify(body, null, 4));
+    
+    const id = req.params.transactionId;
+    console.log('Transaction ID: ', id);
+
+    const amount = req.body.amount;
+    console.log('Transaction Amouint: ', amount);
+
+    (async () => {
+        gateway.transaction.submitForSettlement(id,amount)
+        .then(result => {
+            console.log('Result: ', result);
+            if(result.success) {
+                res.status(201).send(result);
+            }
+            else {
+                res.status(400).send(result);
+            }
+        })
+        .catch(error => {
+            console.log('Error in gateway response: ', error);
+            res.status(500).send(error);
+        });
+    })();
+});
+
+router.get("/:transactionId", (req, res, next) => {
+
+});
+
 module.exports = router;
