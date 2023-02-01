@@ -1,0 +1,135 @@
+<html>
+
+<head>
+    <title>Processor Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&intent=capture"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/stylesheets/paypal_hf.css">
+    <style>
+        .navigation {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-end;
+            align-items: flex-end;
+            list-style: none;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <br />
+    <div class="ui container" id="main">
+        <div class="ui top attached tabular menu">
+            <a class="item active" id="id01" href="./index.html">
+                PayPal
+            </a>
+            <a class="item" id="id02" href="./braintree.html">
+                Braintree
+            </a>
+            <a class="item" id="id03" href="./adyen.html">
+                Adyen
+            </a>
+            <a class="item" id="id04" href="./stripe.html">
+                Stripe
+            </a>
+            <a class="item" id="id05">
+                Worldpay
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message hidden" id="infoMessage">
+                <i class="close icon"></i>
+                <div class="header"></div>
+                <p id="infoMessageContent"></p>
+            </div>
+
+            <!-- <div class="ui placeholder segment"> -->
+
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+
+                <div id="paypal-button-container"></div>
+
+            </div>
+
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+
+            <!-- </div> -->
+        </div>
+
+    </div>
+</body>
+<script type="module">
+
+    
+
+
+    /***************************************************/
+    /****************** GENERAL UTILS ******************/
+    /***************************************************/
+    function presentInfoMessage(header, message) {
+        $("#infoMessage .header").html(header);
+        $("#infoMessageContent").html(message);
+        $('#infoMessage').show();
+    }
+
+    function presentError(header = 'General Error', error, debug = false) {
+        $("#errorMessageHeader").html(header);
+        $("#errorMessageContent").html(error.message);
+        if (debug) {
+            $("#errorStack").html(error.stack);
+        }
+        $("#errorMessage").show();
+    }
+
+    // update the menu bar selected item
+    $('.item').click(function (event) {
+        console.log('item: ', event);
+        $('.item').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+    
+    $('.ui.accordion')
+        .accordion()
+        ;
+
+    $('.ui.dropdown')
+        .dropdown(this)
+        // console.log("Dropdown: ", JSON.stringify(this));
+        ;
+
+    $('.message .close')
+        .on('click', function () {
+            $("#errorMessage").hide();
+            $('#infoMessage').hide();
+        });
+</script>
+
+</html>
