@@ -13,13 +13,8 @@
     <!-- CSS -->
     <link rel="stylesheet" href="/stylesheets/paypal_hf.css">
     <style>
-        .navigation {
-            display: flex;
-            flex-flow: row wrap;
-            justify-content: flex-end;
-            align-items: flex-end;
-            list-style: none;
-            gap: 10px;
+        body {
+            padding: 10px 10px 10px 10px;
         }
     </style>
 </head>
@@ -27,23 +22,42 @@
 <body>
     <br />
     <div class="ui container" id="main">
-        <div class="ui top attached tabular menu">
-            <a class="item active" id="id01" href="./index.html">
-                PayPal
-            </a>
-            <a class="item" id="id02" href="./braintree.html">
-                Braintree
-            </a>
-            <a class="item" id="id03" href="./adyen.html">
-                Adyen
-            </a>
-            <a class="item" id="id04" href="./stripe.html">
-                Stripe
-            </a>
-            <a class="item" id="id05">
-                Worldpay
-            </a>
+
+        <!-- START: MENU -->
+        <div class="ui top attached menu">
+            <div class="ui dropdown icon item">
+                <i class="wrench icon"></i>
+                <div class="menu">
+                    <a href="./adyen.html">
+                        <div class="item">
+                            Adyen
+                        </div>
+                    </a>
+                    <a href="./braintree.html">
+                        <div class="item">
+                            Braintree
+                        </div>
+                    </a>
+                    <a href="./index.html">
+                        <div class="item">
+                            PayPal
+                        </div>
+                    </a>
+                    <div class="item">
+                        <i class="dropdown icon"></i>
+                        <span class="text">Stripe</span>
+                        <div class="menu">
+                            <a href="./stripe.html"><div class="item">Card Checkout</div></a>
+                            <a href="./stripe_vaulting.html"><div class="item">Vaulting</div></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header item">
+                PayPal Branded
+            </div>
         </div>
+        <!-- END: MENU -->
 
         <div class="ui bottom attached segment">
 
@@ -63,14 +77,14 @@
             <!-- <div class="ui placeholder segment"> -->
 
             <!-- PAYMENT FORM -->
-            <div class="ui container" id="paymentForm">
+            <div class="ui container" style="width: 75%" id="paymentForm">
 
                 <div id="paypal-button-container"></div>
 
             </div>
 
             <!-- CAPTURE REVIEW FORM -->
-            <div class="ui form" id="finalForm" hidden>
+            <div class="" id="finalForm" hidden>
                 <button class="ui primary button" id="cancel">
                     Do it Again
                 </button>
@@ -82,13 +96,6 @@
     </div>
 </body>
 <script>
-
-    const uuidv4 = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
 
     const uuid = uuidv4();
 
@@ -150,6 +157,13 @@
     /***************************************************/
     /****************** GENERAL UTILS ******************/
     /***************************************************/
+    function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+    
     function presentInfoMessage(header, message) {
         $("#infoMessage .header").html(header);
         $("#infoMessageContent").html(message);
@@ -166,9 +180,9 @@
     }
 
     // update the menu bar selected item
-    $('.item').click(function (event) {
+    $('a.item').click(function (event) {
         console.log('item: ', event);
-        $('.item').removeClass('active');
+        $('a.item').removeClass('active');
         $(this).addClass('active');
     });
 
@@ -176,7 +190,7 @@
         /* function goes in here */
         location.reload()
     });
-    
+
     $('.ui.accordion')
         .accordion()
         ;

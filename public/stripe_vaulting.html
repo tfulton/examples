@@ -8,7 +8,6 @@
 
     <script src="https://js.stripe.com/v3/"></script>
 
-
     <style>
         body {
             padding: 10px 10px 10px 10px;
@@ -51,13 +50,13 @@
                 </div>
             </div>
             <div class="header item">
-                Stripe Card
+                Stripe Vaulting
             </div>
         </div>
         <!-- END: MENU -->
 
         <div class="ui bottom attached segment">
-
+            <p></p>
             <div class="ui negative message hidden" id="errorMessage">
                 <i class="close icon"></i>
                 <div class="header" id="errorMessageHeader"></div>
@@ -99,20 +98,16 @@
                     Do it again
                 </button>
             </div>
+        </div>
+
+        <div class="ui bottom attached segment">
 
             <!-- </div> -->
         </div>
 
     </div>
 </body>
-<script type="module">
-
-    const uuidv4 = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
+<script>
 
     const uuid = uuidv4();
 
@@ -194,20 +189,20 @@
                                 },
                                 body: `{}`
                             })
-                            .then(response => { return response.json() })
-                            .then(json => {
-                                console.log("Capture payment response: ", json);
+                                .then(response => { return response.json() })
+                                .then(json => {
+                                    console.log("Capture payment response: ", json);
 
-                                $('#captureButtons').hide();
-                                $('#repeatButtons').show();
+                                    $('#captureButtons').hide();
+                                    $('#repeatButtons').show();
 
-                                // Show a success message or redirect
-                                let message = `A capture response for intent id ${json.id} was returned with a status of ${json.status}".`;
-                                presentInfoMessage("Payment intent capture completed!", message);
-                            })
-                            .catch(error => {
-                                console.error(`Error encountered withi fetch to /stripe/intent/${intent.id}/capture`, error);
-                            });
+                                    // Show a success message or redirect
+                                    let message = `A capture response for intent id ${json.id} was returned with a status of ${json.status}".`;
+                                    presentInfoMessage("Payment intent capture completed!", message);
+                                })
+                                .catch(error => {
+                                    console.error(`Error encountered withi fetch to /stripe/intent/${intent.id}/capture`, error);
+                                });
 
                             // display the results
                         });
@@ -277,6 +272,7 @@
             $("#errorMessage").hide();
             $('#infoMessage').hide();
         });
+
 </script>
 
 </html>
