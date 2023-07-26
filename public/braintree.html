@@ -155,7 +155,7 @@
 
     (async () => {
 
-        // 1) SETUP THE ADYEN SESSION
+        // 1) GET A TOKEN
         const response = await fetch('/braintree/token', {
             method: "GET",
             headers: {
